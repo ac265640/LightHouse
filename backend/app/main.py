@@ -31,7 +31,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 LIST_COLS = [
     "customer_id", "city", "age", "gender", "contract", "tenure_in_months", "monthly_charge",
     "internet_type", "churn_probability", "risk_band", "confidence", "clv", "value_at_risk",
-    "median_months_left", "play", "best_offer", "offer_net_value", "priority",
+    "median_months_left", "play", "secondary_play", "best_offer", "offer_net_value", "priority",
     "churn", "split",
 ]
 
@@ -84,8 +84,18 @@ def summary():
                                   lat=("latitude", "mean"), lon=("longitude", "mean"))
            .query("customers >= 15").sort_values("value_at_risk", ascending=False)
            .head(40).reset_index().to_dict(orient="records"))
+    act = _active(df)
+    top_risk = (act.sort_values("value_at_risk", ascending=False).head(8)[LIST_COLS]
+                .to_dict(orient="records"))
     return _clean({
         "customers": len(df),
+        "active_customers": len(act),
+        "active_value_at_risk": float(act["value_at_risk"].sum()),
+        "active_priority_counts": act["priority"].value_counts().to_dict(),
+        "active_clv": float(act["clv"].sum()),
+        "top_at_risk": top_risk,
+        "play_counts": act[act["priority"].isin(["Save now", "Low-cost save"])]["play"]
+        .value_counts().to_dict(),
         "churn_rate": float(df["churn"].mean()),
         "avg_risk": float(df["churn_probability"].mean()),
         "total_clv": float(df["clv"].sum()),

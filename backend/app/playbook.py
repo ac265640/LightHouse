@@ -19,7 +19,19 @@ PLAYS: dict[str, dict] = {
         ],
         "channel": "Outbound call from retention desk",
         "kpi": "Contract upgrade rate",
-        "drivers": ["contract", "tenure", "is_new_customer"],
+        "drivers": ["contract"],
+    },
+    "Early-life onboarding": {
+        "why": "Risk is driven by a short relationship: the customer has not yet built habits or value.",
+        "actions": [
+            "Guided 90-day onboarding journey with setup check-ins",
+            "First-bill walkthrough call",
+            "Activate one unused included service",
+        ],
+        "channel": "Onboarding email series + day-30 call",
+        "kpi": "90-day survival of new customers",
+        "drivers": ["tenure", "is_new_customer", "total_revenue", "total_charges",
+                    "total_long_distance", "avg_monthly_revenue"],
     },
     "Value reframe": {
         "why": "Risk is driven by bill level, recent bill increases or overage charges.",
@@ -31,7 +43,7 @@ PLAYS: dict[str, dict] = {
         "channel": "Personalised email + in-app message",
         "kpi": "ARPU retained after plan change",
         "drivers": ["monthly_charge", "charge_drift", "extra_data", "revenue_per_service",
-                    "avg_monthly_revenue", "total_charges", "long_distance"],
+                    "avg_monthly_long_distance", "refund"],
     },
     "Service quality": {
         "why": "Risk is driven by product experience: fiber reliability, no tech support or security add-ons.",
@@ -88,19 +100,32 @@ PRIORITY_GUIDE = {
 }
 
 
-def play_name_for_drivers(top_reasons: list[dict]) -> str:
-    for r in top_reasons:
-        f = r["feature"]
-        for name, play in PLAYS.items():
-            if any(f.startswith(d) for d in play["drivers"]):
-                return name
+def _play_of(feature: str) -> str:
+    for name, play in PLAYS.items():
+        if any(feature.startswith(d) for d in play["drivers"]):
+            return name
     return "Lifecycle care"
 
 
+def ranked_plays(top_reasons: list[dict]) -> list[str]:
+    """Plays ordered by the total churn-pushing SHAP impact of their drivers."""
+    totals: dict[str, float] = {}
+    for r in top_reasons:
+        name = _play_of(r["feature"])
+        totals[name] = totals.get(name, 0.0) + r["impact"]
+    return sorted(totals, key=totals.get, reverse=True) or ["Lifecycle care"]
+
+
+def play_name_for_drivers(top_reasons: list[dict]) -> str:
+    return ranked_plays(top_reasons)[0]
+
+
 def play_for(top_reasons: list[dict], priority: str) -> dict:
-    name = play_name_for_drivers(top_reasons)
+    ranked = ranked_plays(top_reasons)
+    name = ranked[0]
     play = {k: v for k, v in PLAYS[name].items() if k != "drivers"}
     play["name"] = name
+    play["secondary"] = ranked[1] if len(ranked) > 1 else None
     play["priority"] = priority
     play["urgency"] = PRIORITY_GUIDE.get(priority, "")
     play["triggered_by"] = [r["label"] for r in top_reasons]

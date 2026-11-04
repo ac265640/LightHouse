@@ -232,8 +232,10 @@ def run() -> dict:
     for k in uplift.OFFERS:
         scored[f"uplift_{k[-1].lower()}"] = -up["cate"][k].values
     scored["top_reasons"] = [json.dumps(r) for r in reasons]
-    from backend.app.playbook import play_name_for_drivers
-    scored["play"] = [play_name_for_drivers(r) for r in reasons]
+    from backend.app.playbook import ranked_plays
+    ranked = [ranked_plays(r) for r in reasons]
+    scored["play"] = [r[0] for r in ranked]
+    scored["secondary_play"] = [r[1] if len(r) > 1 else "" for r in ranked]
     clv_med = np.median(clv)
     scored["priority"] = np.select(
         [(p_all >= decision_threshold) & (clv >= clv_med),

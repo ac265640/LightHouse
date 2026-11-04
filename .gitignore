@@ -30,3 +30,6 @@ frontend/.env*.local
 
 # Training scratch output
 catboost_info/
+
+# Local tooling
+.claude/

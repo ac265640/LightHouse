@@ -87,7 +87,7 @@ def shap_values(model, X: pd.DataFrame) -> np.ndarray:
     return sv
 
 
-def top_reasons(sv: np.ndarray, X: pd.DataFrame, k: int = 3) -> list[list[dict]]:
+def top_reasons(sv: np.ndarray, X: pd.DataFrame, k: int = 5) -> list[list[dict]]:
     cols = list(X.columns)
     out = []
     for i in range(sv.shape[0]):
