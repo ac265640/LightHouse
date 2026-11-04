@@ -35,13 +35,13 @@ function Gauge({ p, size = 150 }: { p: number; size?: number }) {
   const c = Math.PI * r;
   return (
     <svg width={size} height={size / 2 + 18} viewBox={`0 0 ${size} ${size / 2 + 18}`}>
-      <path d={`M 12 ${size / 2} A ${r} ${r} 0 0 1 ${size - 12} ${size / 2}`} stroke="rgba(255,255,255,0.06)" strokeWidth="12" fill="none" strokeLinecap="round" />
+      <path d={`M 12 ${size / 2} A ${r} ${r} 0 0 1 ${size - 12} ${size / 2}`} stroke="#151a24" strokeWidth="12" fill="none" strokeLinecap="round" />
       <path d={`M 12 ${size / 2} A ${r} ${r} 0 0 1 ${size - 12} ${size / 2}`} stroke={riskColor(p)} strokeWidth="12" fill="none"
         strokeLinecap="round" strokeDasharray={`${c * p} ${c}`} style={{ transition: "stroke-dasharray 0.6s ease" }} />
-      <text x="50%" y={size / 2 - 4} textAnchor="middle" className="num" fill="#e8edf9" fontSize="28" fontWeight="600">
+      <text x="50%" y={size / 2 - 4} textAnchor="middle" className="num font-display" fill="#eceef2" fontSize="34" fontWeight="400">
         {(p * 100).toFixed(0)}%
       </text>
-      <text x="50%" y={size / 2 + 14} textAnchor="middle" fill="#8b98bd" fontSize="10" letterSpacing="2">CHURN RISK</text>
+      <text x="50%" y={size / 2 + 16} textAnchor="middle" fill="#a3aab8" fontSize="13">churn risk</text>
     </svg>
   );
 }
@@ -112,7 +112,7 @@ export default function CustomerPage({ params }: { params: Promise<{ id: string 
         <div className="flex flex-wrap gap-2">
           <Badge tone={priorityTone(c.priority)}>{c.priority}</Badge>
           <Badge tone={riskTone(c.risk_band)}>{c.risk_band} risk</Badge>
-          <Badge tone={c.confidence === "Uncertain" ? "violet" : "muted"}>Conformal: {c.confidence}</Badge>
+          <Badge tone={c.confidence === "Uncertain" ? "warn" : "muted"}>Conformal: {c.confidence}</Badge>
           {c.churn === 1 && <Badge tone="bad">Churned · {c.churn_category}</Badge>}
         </div>
       </div>
@@ -165,7 +165,7 @@ export default function CustomerPage({ params }: { params: Promise<{ id: string 
                     <span className="num text-xs text-bad">+{r.impact.toFixed(2)}</span>
                   </div>
                   <div className="h-2 rounded-full bg-white/5">
-                    <div className="h-full rounded-full bg-gradient-to-r from-warn to-bad" style={{ width: `${(r.impact / max) * 100}%` }} />
+                    <div className="h-full rounded-full bg-bad/80" style={{ width: `${(r.impact / max) * 100}%` }} />
                   </div>
                 </div>
               );
@@ -202,11 +202,11 @@ export default function CustomerPage({ params }: { params: Promise<{ id: string 
               <BarChart data={upliftData} margin={{ left: -22, top: 8 }}>
                 <XAxis dataKey="offer" tickLine={false} axisLine={false} />
                 <YAxis tickFormatter={(v) => `${v.toFixed(0)}`} tickLine={false} axisLine={false} />
-                <ReferenceLine y={0} stroke="#263866" />
+                <ReferenceLine y={0} stroke="#262d3d" />
                 <Tooltip {...tooltipStyle} formatter={(v: number, _n, item) =>
                   item.payload.missing ? ["Not eligible at this tenure", "Offer tier"] : [`${v.toFixed(1)} pts`, "Churn reduction"]} />
                 <Bar dataKey="value" radius={[5, 5, 5, 5]}>
-                  {upliftData.map((d) => <Cell key={d.offer} fill={d.name === c.best_offer ? "#f6b54a" : d.value > 0 ? "#5fc6ff" : "#ff6b81"} fillOpacity={d.missing ? 0.2 : 0.85} />)}
+                  {upliftData.map((d) => <Cell key={d.offer} fill={d.name === c.best_offer ? "#f5b547" : d.value > 0 ? "#8da4c4" : "#f2685c"} fillOpacity={d.missing ? 0.2 : 0.85} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -214,7 +214,7 @@ export default function CustomerPage({ params }: { params: Promise<{ id: string 
           <div className="mb-2 text-[11px] text-faint">
             Offers are tenure-gated tiers; faded bars are not available at {c.tenure_in_months} months.
           </div>
-          <div className="flex items-center gap-2 rounded-lg bg-beam/10 px-3 py-2 text-sm">
+          <div className="flex items-center gap-2 rounded-md bg-panel-2 px-3 py-2 text-sm">
             <Gift size={15} className="text-beam" />
             {c.best_offer === "No offer"
               ? <span className="text-muted">No offer pays for itself here. Save the budget.</span>
@@ -275,7 +275,7 @@ export default function CustomerPage({ params }: { params: Promise<{ id: string 
       <Card className="mt-4">
         <CardTitle label="AI outreach" title="Personalised retention message"
           right={<button onClick={draftMessage} disabled={msg.loading}
-            className="inline-flex items-center gap-2 rounded-lg border border-violet/40 bg-violet/10 px-3 py-1.5 text-xs font-medium text-violet transition hover:bg-violet/20 disabled:opacity-50">
+            className="inline-flex items-center gap-2 rounded-lg border border-line-2 bg-panel-2 px-3 py-1.5 text-xs font-medium text-text transition hover:bg-panel-2 disabled:opacity-50">
             {msg.loading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Draft with AI
           </button>} />
         {msg.text ? <div className="whitespace-pre-wrap rounded-lg bg-bg-2 p-4 text-sm leading-relaxed text-text">{msg.text}</div>

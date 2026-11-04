@@ -22,7 +22,7 @@ type ScoreResult = {
     median_months_left: number; predicted_reason: string; top_reasons: Reason[] }[];
 };
 
-const psiColor = (v: number) => (v > 0.25 ? "#ff6b81" : v > 0.1 ? "#f6b54a" : "#3ddc97");
+const psiColor = (v: number) => (v > 0.25 ? "#f2685c" : v > 0.1 ? "#f5b547" : "#4fc48a");
 
 function PsiChart({ psi }: { psi: Record<string, number> }) {
   const data = Object.entries(psi).sort((a, b) => b[1] - a[1]).slice(0, 12)
@@ -33,8 +33,8 @@ function PsiChart({ psi }: { psi: Record<string, number> }) {
         <BarChart data={data} layout="vertical" margin={{ left: 60, right: 16 }}>
           <XAxis type="number" tickLine={false} axisLine={false} domain={[0, (max: number) => Math.max(0.3, max)]} />
           <YAxis type="category" dataKey="feature" width={150} tickLine={false} axisLine={false} />
-          <ReferenceLine x={0.1} stroke="#f6b54a" strokeDasharray="3 3" />
-          <ReferenceLine x={0.25} stroke="#ff6b81" strokeDasharray="3 3" />
+          <ReferenceLine x={0.1} stroke="#f5b547" strokeDasharray="3 3" />
+          <ReferenceLine x={0.25} stroke="#f2685c" strokeDasharray="3 3" />
           <Tooltip {...tooltipStyle} formatter={(v: number) => v.toFixed(4)} />
           <Bar dataKey="value" name="PSI" barSize={11} radius={[0, 4, 4, 0]}>
             {data.map((d) => <Cell key={d.feature} fill={psiColor(d.value)} />)}
@@ -87,7 +87,7 @@ export default function MonitoringPage() {
           <div onClick={() => input.current?.click()}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) upload(f); }}
-            className="flex h-44 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-line-2 bg-bg-2 text-center transition hover:border-beam/50">
+            className="flex h-44 cursor-pointer flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-line-2 bg-bg-2 text-center transition hover:border-beam/50">
             {uploading ? <Loader2 className="animate-spin text-beam" /> : <UploadCloud className="text-beam" />}
             <div className="text-sm">{uploading ? "Scoring…" : "Drop a CSV here or click to upload"}</div>
             <div className="text-[11px] text-faint">IBM Telco schema · outcome columns optional and ignored</div>

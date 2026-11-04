@@ -61,7 +61,7 @@ export default function PlaybookPage() {
                 <h3 className="text-xl font-semibold text-beam">{name}</h3>
               </div>
               <div className="text-right">
-                <div className="num text-2xl font-semibold">{num(atRisk)}</div>
+                <div className="font-display num text-2xl font-normal">{num(atRisk)}</div>
                 <div className="text-[11px] text-muted">at-risk customers · {money(v)} at risk</div>
               </div>
             </div>
@@ -73,7 +73,7 @@ export default function PlaybookPage() {
             </ul>
             <div className="mt-4 flex flex-wrap gap-2 text-xs">
               <Badge tone="sky"><Megaphone size={11} /> {play.channel}</Badge>
-              <Badge tone="violet"><Target size={11} /> {play.kpi}</Badge>
+              <Badge tone="muted"><Target size={11} /> {play.kpi}</Badge>
             </div>
             {total > 0 && (
               <div className="mt-auto pt-5">
@@ -113,11 +113,11 @@ export default function PlaybookPage() {
           <CardTitle label="Honest finding" title="Why plays use drivers, not predicted exit reasons" />
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg bg-bg-2 p-3">
-              <div className="num text-2xl font-semibold">{pct(data.reason_model.oof_accuracy, 0)}</div>
+              <div className="font-display num text-2xl font-normal">{pct(data.reason_model.oof_accuracy, 0)}</div>
               <div className="text-[11px] text-muted">reason-model accuracy</div>
             </div>
             <div className="rounded-lg bg-bg-2 p-3">
-              <div className="num text-2xl font-semibold text-muted">{pct(data.reason_model.majority_baseline, 0)}</div>
+              <div className="font-display num text-2xl font-normal text-muted">{pct(data.reason_model.majority_baseline, 0)}</div>
               <div className="text-[11px] text-muted">always guess &ldquo;Competitor&rdquo;</div>
             </div>
           </div>

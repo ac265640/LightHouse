@@ -29,9 +29,9 @@ type OfferEvidence = {
 
 const DEFAULT_COSTS = { "Offer A": 60, "Offer B": 45, "Offer C": 35, "Offer D": 25, "Offer E": 15 };
 const STRATS = [
-  { key: "uplift_optimised", label: "Lighthouse targeting", color: "#f6b54a" },
-  { key: "risk_ranked", label: "Business as usual", color: "#5fc6ff" },
-  { key: "random", label: "Random outreach", color: "#5a6890" },
+  { key: "uplift_optimised", label: "Lighthouse targeting", color: "#f5b547" },
+  { key: "risk_ranked", label: "Business as usual", color: "#8da4c4" },
+  { key: "random", label: "Random outreach", color: "#4a5263" },
 ] as const;
 
 function downloadCsv(rows: CampaignResult["targets"]) {
@@ -95,7 +95,7 @@ export default function CampaignPage() {
       <div className="grid gap-4 xl:grid-cols-3">
         <Card>
           <CardTitle label="Inputs" title="Campaign budget" />
-          <div className="num text-4xl font-semibold beam-text">{money(budget, false)}</div>
+          <div className="font-display num text-4xl font-normal text-lamp">{money(budget, false)}</div>
           <input type="range" min={1000} max={60000} step={1000} value={budget}
             onChange={(e) => setBudget(Number(e.target.value))} className="mt-4 w-full" />
           <div className="mt-1 flex justify-between text-[11px] text-faint"><span>$1k</span><span>$60k</span></div>
@@ -121,14 +121,14 @@ export default function CampaignPage() {
             const r = result?.strategies[s.key];
             const best = s.key === "uplift_optimised";
             return (
-              <div key={s.key} className={`card p-5 ${best ? "border-beam/40 shadow-[0_0_40px_-12px_rgba(246,181,74,0.35)]" : ""}`}>
+              <div key={s.key} className={`card p-5 ${best ? "!border-lamp/60" : ""}`}>
                 <div className="flex items-center justify-between">
                   <span className="label" style={{ color: s.color }}>{s.label}</span>
                   {best && <Trophy size={15} className="text-beam" />}
                 </div>
                 {!r ? <Skeleton className="mt-4 h-28" /> : (
                   <>
-                    <div className={`num mt-4 text-3xl font-semibold ${r.net_value >= 0 ? (best ? "beam-text" : "text-text") : "text-bad"}`}>
+                    <div className={`font-display num mt-4 text-3xl font-normal ${r.net_value >= 0 ? (best ? "text-lamp" : "text-text") : "text-bad"}`}>
                       {money(r.net_value)}
                     </div>
                     <div className="text-xs text-muted">net value retained</div>
@@ -149,7 +149,7 @@ export default function CampaignPage() {
       </div>
 
       {smart && bau && (
-        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-beam/30 bg-beam/[0.06] px-5 py-4 text-sm">
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg bg-panel-2 px-5 py-4 text-sm">
           {running ? <Loader2 size={16} className="animate-spin text-beam" /> : <Trophy size={16} className="text-beam" />}
           <span>
             With the same {money(budget, false)}, Lighthouse retains <b className="text-beam">{money(smart.net_value - bau.net_value)}</b> more net value than business as usual,
@@ -169,8 +169,8 @@ export default function CampaignPage() {
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
                   <XAxis dataKey="budget" tickFormatter={(v) => `$${v / 1000}k`} tickLine={false} axisLine={false} />
                   <YAxis tickFormatter={(v) => money(v)} tickLine={false} axisLine={false} width={60} />
-                  <ReferenceLine y={0} stroke="#263866" />
-                  <ReferenceLine x={budget} stroke="#f6b54a" strokeDasharray="4 4" />
+                  <ReferenceLine y={0} stroke="#262d3d" />
+                  <ReferenceLine x={budget} stroke="#f5b547" strokeDasharray="4 4" />
                   <Tooltip {...tooltipStyle} formatter={(v: number) => money(v)} labelFormatter={(v) => `Budget ${money(Number(v), false)}`} />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
                   {STRATS.map((s) => <Line key={s.key} dataKey={s.key} name={s.label} stroke={s.color} strokeWidth={2.2} dot={false} />)}
@@ -187,7 +187,7 @@ export default function CampaignPage() {
                 <XAxis type="number" hide />
                 <YAxis type="category" dataKey="offer" tickLine={false} axisLine={false} width={64} />
                 <Tooltip {...tooltipStyle} />
-                <Bar dataKey="customers" fill="#f6b54a" radius={[0, 6, 6, 0]} barSize={18} />
+                <Bar dataKey="customers" fill="#f5b547" radius={[0, 6, 6, 0]} barSize={18} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -204,13 +204,13 @@ export default function CampaignPage() {
                 <CartesianGrid vertical={false} strokeDasharray="3 3" />
                 <XAxis dataKey="offer" tickLine={false} axisLine={false} />
                 <YAxis tickFormatter={(v) => `${v}`} tickLine={false} axisLine={false} unit=" pt" width={52} />
-                <ReferenceLine y={0} stroke="#263866" />
+                <ReferenceLine y={0} stroke="#262d3d" />
                 <Tooltip {...tooltipStyle} formatter={(v: number, n) => [`${v.toFixed(1)} pts`, n]} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="naive" name="Naive churn reduction" fill="#5a6890" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="naive" name="Naive churn reduction" fill="#4a5263" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="dr" name="Causal (DR, within tier)" radius={[4, 4, 0, 0]}>
-                  {evidence.map((e) => <Cell key={e.offer} fill={e.dr > 0 ? "#3ddc97" : "#ff6b81"} />)}
-                  <ErrorBar dataKey="err" width={5} stroke="#e8edf9" strokeOpacity={0.6} />
+                  {evidence.map((e) => <Cell key={e.offer} fill={e.dr > 0 ? "#4fc48a" : "#f2685c"} />)}
+                  <ErrorBar dataKey="err" width={5} stroke="#eceef2" strokeOpacity={0.6} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -221,10 +221,10 @@ export default function CampaignPage() {
           </p>
         </Card>
         <Card className="xl:col-span-2">
-          <CardTitle label="Validate" title="A/B test to confirm the plan" right={<FlaskConical size={16} className="text-violet" />} />
+          <CardTitle label="Validate" title="A/B test to confirm the plan" right={<FlaskConical size={16} className="text-text" />} />
           {ab.data ? (
             <div>
-              <div className="num text-3xl font-semibold text-violet">{num(ab.data.total)}</div>
+              <div className="font-display num text-3xl font-normal text-text">{num(ab.data.total)}</div>
               <div className="text-xs text-muted">customers needed ({num(ab.data.per_arm)} per arm)</div>
               <ul className="mt-4 space-y-2 text-sm text-muted">
                 <li>• Randomise eligible targets into offer vs hold-out</li>
@@ -251,7 +251,7 @@ export default function CampaignPage() {
         <div className="max-h-[420px] overflow-auto scrollbar-thin">
           <table className="w-full min-w-[760px] text-sm">
             <thead className="sticky top-0 bg-panel">
-              <tr className="text-left text-[11px] uppercase tracking-wider text-faint">
+              <tr className="text-left text-[13px] text-faint">
                 <th className="px-5 py-2 font-medium">Customer</th>
                 <th className="px-3 py-2 font-medium">Risk</th>
                 <th className="px-3 py-2 text-right font-medium">CLV</th>

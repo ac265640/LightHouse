@@ -109,7 +109,7 @@ function CustomersInner() {
           <div className="overflow-x-auto scrollbar-thin">
             <table className="w-full min-w-[960px] text-sm">
               <thead>
-                <tr className="text-left text-[11px] uppercase tracking-wider text-faint">
+                <tr className="text-left text-[13px] text-faint">
                   {COLUMNS.map((c) => (
                     <th key={c.key} className={`px-4 py-3 font-medium ${c.align === "right" ? "text-right" : ""}`}>
                       <button onClick={() => toggleSort(c.key)} className="inline-flex items-center gap-1 hover:text-muted">

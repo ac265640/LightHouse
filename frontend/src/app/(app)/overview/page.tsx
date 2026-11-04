@@ -1,251 +1,209 @@
 "use client";
 
-import { ArrowUpRight, Coins, ShieldAlert, Target, TrendingDown, Users } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import {
-  Area, AreaChart, Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Scatter, ScatterChart,
-  Tooltip, XAxis, YAxis, ZAxis, CartesianGrid,
-} from "recharts";
+import { useState } from "react";
+import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-import {
-  Badge, Card, CardTitle, ErrorBox, PageHeader, RiskBar, Skeleton, Stat, priorityTone, tooltipStyle,
-} from "@/components/ui";
+import { Coastline, type MapData } from "@/components/Coastline";
+import { Figure, Reveal, fmt } from "@/components/motion";
+import { Badge, Card, CardTitle, ErrorBox, PageHeader, RiskBar, Skeleton, Stat, priorityTone, tooltipStyle } from "@/components/ui";
 import type { Summary } from "@/lib/api";
 import { PRIORITY_COLORS, money, num, pct } from "@/lib/format";
 import { useApi } from "@/lib/useApi";
 
 const PRIORITY_ORDER = ["Save now", "Low-cost save", "Grow", "Maintain"];
+const PRIORITY_NOTE: Record<string, string> = {
+  "Save now": "high risk, high value: call",
+  "Low-cost save": "at risk, lower value: digital touch",
+  Grow: "safe and valuable: upsell",
+  Maintain: "no action needed",
+};
 
-export default function CommandCenter() {
+export default function Overview() {
   const { data: s, error } = useApi<Summary>("/api/summary");
+  const { data: map } = useApi<MapData>("/api/map");
+  const [lit, setLit] = useState({ atRisk: 0, value: 0 });
 
   if (error) return <ErrorBox error={error} />;
-  if (!s) return <LoadingGrid />;
+  if (!s) return <Loading />;
 
-  const priority = PRIORITY_ORDER.map((k) => ({ name: k, value: s.active_priority_counts[k] ?? 0 }));
-  const riskHist = s.risk_distribution.map((v, i) => ({ bin: `${i * 5}%`, customers: v }));
-  const reasons = Object.entries(s.churn_by_reason).map(([k, v]) => ({ reason: k, customers: v }))
-    .sort((a, b) => b.customers - a.customers);
-  const plays = Object.entries(s.play_counts).map(([k, v]) => ({ play: k, customers: v }))
-    .sort((a, b) => b.customers - a.customers);
+  const reasons = Object.entries(s.churn_by_reason).sort((a, b) => b[1] - a[1]);
+  const plays = Object.entries(s.play_counts).sort((a, b) => b[1] - a[1]);
+  const totalActive = PRIORITY_ORDER.reduce((a, k) => a + (s.active_priority_counts[k] ?? 0), 0);
+  const worstContract = s.by_contract.reduce((a, b) => (b.churn_rate > a.churn_rate ? b : a));
+  const worstTenure = s.by_tenure.reduce((a, b) => (b.churn_rate > a.churn_rate ? b : a));
 
   return (
     <div>
-      <PageHeader
-        index="01" label="Command Center"
-        title="Who is drifting away, and what it costs"
-        subtitle="Every score below is out-of-sample: customers are scored by models that never saw them in training."
-        right={<Link href="/campaign" className="inline-flex items-center gap-2 rounded-lg bg-beam px-4 py-2.5 text-sm font-medium text-bg transition hover:brightness-110">
-          Plan a retention campaign <ArrowUpRight size={16} />
-        </Link>}
-      />
+      <PageHeader title="Who is leaving, and what it costs"
+        subtitle={`${num(s.active_customers)} customers are still with you. ${num(s.active_priority_counts["Save now"])} of them are worth a call this week.`}
+        right={<Link href="/campaign"
+          className="group inline-flex h-10 items-center gap-2 rounded-md bg-lamp px-4 text-[14px] font-medium text-[var(--lamp-ink)] transition-transform duration-200 hover:-translate-y-px active:translate-y-0">
+          Plan a campaign <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5" />
+        </Link>} />
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-        <Stat label="Active customers" value={num(s.active_customers)} icon={<Users size={15} />}
-          sub={`${num(s.customers)} in portfolio`} />
-        <Stat label="Quarterly churn" value={pct(s.churn_rate)} tone="bad" icon={<TrendingDown size={15} />}
-          sub={`${money(s.monthly_revenue_lost)} MRR lost`} />
-        <Stat label="Value at risk" value={money(s.active_value_at_risk)} tone="beam" icon={<Coins size={15} />}
-          sub="Risk × survival CLV, active base" />
-        <Stat label="Save now" value={num(s.active_priority_counts["Save now"])} tone="bad" icon={<ShieldAlert size={15} />}
-          sub="High risk and high value" />
-        <Stat label="Uplift-targeted value" value={money(s.uplift_targeting_value)} tone="good" icon={<Target size={15} />}
-          sub="Net value of best-offer targeting" />
-      </div>
+      <Reveal className="grid grid-cols-2 gap-x-6 gap-y-8 border-y border-line py-7 md:grid-cols-3 xl:grid-cols-5" scroll={false} delay={0.1}>
+        <Stat label="Active customers" figure={{ value: s.active_customers, format: fmt.int }} sub={`of ${num(s.customers)} at quarter start`} />
+        <Stat label="Churned this quarter" figure={{ value: s.churn_rate, format: fmt.pct(1) }} tone="bad"
+          sub={`${money(s.monthly_revenue_lost)} a month walked out`} />
+        <Stat label="Value at risk" figure={{ value: s.active_value_at_risk, format: fmt.money(s.active_value_at_risk) }} tone="beam"
+          sub="risk × lifetime value, active customers" />
+        <Stat label="Worth a call" figure={{ value: s.active_priority_counts["Save now"], format: fmt.int }}
+          sub="high risk and high value" />
+        <Stat label="Model accuracy" figure={{ value: s.model_auc, format: fmt.dec(3) }}
+          sub="AUC on customers it never saw" />
+      </Reveal>
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-3">
-        <Card className="xl:col-span-2">
-          <CardTitle label="Risk distribution" title="Calibrated churn probability, all customers"
-            hint="Isotonic-calibrated stacked ensemble. A 30% score means roughly 30 in 100 such customers churn."
-            right={<Badge tone="sky">AUC {s.model_auc.toFixed(3)}</Badge>} />
-          <div className="h-56">
-            <ResponsiveContainer>
-              <AreaChart data={riskHist} margin={{ left: -18, right: 6, top: 6 }}>
-                <defs>
-                  <linearGradient id="riskFill" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#3ddc97" stopOpacity={0.5} />
-                    <stop offset="45%" stopColor="#f6b54a" stopOpacity={0.5} />
-                    <stop offset="100%" stopColor="#ff6b81" stopOpacity={0.6} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                <XAxis dataKey="bin" tickLine={false} axisLine={false} interval={3} />
-                <YAxis tickLine={false} axisLine={false} />
-                <Tooltip {...tooltipStyle} />
-                <Area type="monotone" dataKey="customers" stroke="#f6b54a" strokeWidth={2} fill="url(#riskFill)" />
-              </AreaChart>
-            </ResponsiveContainer>
+      <Reveal className="mt-6 grid gap-4 xl:grid-cols-12">
+        <Card className="xl:col-span-8 !p-0" lit={false}>
+          <div className="flex flex-wrap items-start justify-between gap-4 p-5 pb-0">
+            <CardTitle title="Your customers, on the map"
+              label="Every point is a customer. Move the pointer to aim the lamp; click a point to open them." />
+            <div className="text-right">
+              <div className="font-display num text-[28px] leading-none text-bad"><Figure value={lit.atRisk} format={fmt.int} /></div>
+              <div className="mt-1 text-[13px] text-faint">high-risk customers in the beam</div>
+            </div>
+          </div>
+          {map ? <Coastline data={map} className="h-[440px] w-full" onLit={setLit} /> : <Skeleton className="m-5 h-[400px]" />}
+          <div className="flex flex-wrap gap-x-5 gap-y-1 px-5 pb-4 text-[13px] text-faint">
+            <span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-[2px] bg-bad" />50% risk or more</span>
+            <span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-[2px] bg-lamp" />20 to 50%</span>
+            <span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-[2px] bg-[#bec9dc]" />under 20%</span>
+            <span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-[2px] bg-[#3a404e]" />left this quarter</span>
           </div>
         </Card>
 
-        <Card>
-          <CardTitle label="Priority matrix" title="Active customers by action"
-            hint="Risk above the profit-optimal threshold × CLV above median." />
-          <div className="flex flex-col items-center gap-4 sm:flex-row">
-            <div className="h-44 w-44 shrink-0">
-              <ResponsiveContainer>
-                <PieChart>
-                  <Pie data={priority} dataKey="value" innerRadius={48} outerRadius={78} paddingAngle={2} stroke="none">
-                    {priority.map((p) => <Cell key={p.name} fill={PRIORITY_COLORS[p.name]} />)}
-                  </Pie>
-                  <Tooltip {...tooltipStyle} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="w-full space-y-2.5">
-              {priority.map((p) => (
-                <div key={p.name} className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2 text-muted">
-                    <span className="h-2 w-2 rounded-full" style={{ background: PRIORITY_COLORS[p.name] }} />
-                    {p.name}
-                  </span>
-                  <span className="num text-text">{num(p.value)}</span>
-                </div>
+        <div className="flex flex-col gap-4 xl:col-span-4">
+          <Card>
+            <CardTitle title="What to do with each customer" label={`Threshold ${pct(s.decision_threshold)} risk, chosen to maximise retained value`} />
+            <div className="flex h-2 overflow-hidden rounded-full">
+              {PRIORITY_ORDER.map((p) => (
+                <div key={p} style={{ width: `${((s.active_priority_counts[p] ?? 0) / totalActive) * 100}%`, background: PRIORITY_COLORS[p] }} />
               ))}
-              <div className="pt-1 text-[11px] text-faint">Threshold {pct(s.decision_threshold)} chosen to maximise net retained value.</div>
             </div>
-          </div>
-        </Card>
-      </div>
+            <div className="mt-4 flex flex-col gap-3">
+              {PRIORITY_ORDER.map((p) => (
+                <Link key={p} href={`/customers?priority=${encodeURIComponent(p)}`}
+                  className="group flex items-baseline justify-between gap-3 rounded-md transition-colors">
+                  <span className="min-w-0">
+                    <span className="flex items-center gap-2 text-[14px] text-text group-hover:text-lamp">
+                      <i className="h-2 w-2 shrink-0 rounded-[2px]" style={{ background: PRIORITY_COLORS[p] }} />{p}
+                    </span>
+                    <span className="block pl-4 text-[13px] text-faint">{PRIORITY_NOTE[p]}</span>
+                  </span>
+                  <span className="font-display num text-[22px] text-text">{num(s.active_priority_counts[p])}</span>
+                </Link>
+              ))}
+            </div>
+          </Card>
+          <Card className="flex-1">
+            <CardTitle title="Plays for at-risk customers" label="Chosen from each customer's own churn drivers" />
+            <div className="flex flex-col gap-2.5">
+              {plays.map(([play, n]) => (
+                <Link key={play} href={`/customers?play=${encodeURIComponent(play)}`} className="group">
+                  <div className="mb-1 flex justify-between text-[13px]">
+                    <span className="text-muted group-hover:text-text">{play}</span><span className="num text-text">{num(n)}</span>
+                  </div>
+                  <div className="h-1 rounded-full bg-panel-2">
+                    <div className="h-full rounded-full bg-lamp/80 transition-[width] duration-700" style={{ width: `${(n / plays[0][1]) * 100}%` }} />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </Card>
+        </div>
+      </Reveal>
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-3">
+      <Reveal className="mt-4">
         <Card>
-          <CardTitle label="Contract" title="Churn rate by contract type" />
-          <div className="h-48">
-            <ResponsiveContainer>
-              <BarChart data={s.by_contract} margin={{ left: -18, top: 6 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                <XAxis dataKey="contract" tickLine={false} axisLine={false} />
-                <YAxis tickFormatter={(v) => `${Math.round(v * 100)}%`} tickLine={false} axisLine={false} />
-                <Tooltip {...tooltipStyle} formatter={(v: number) => pct(v)} />
-                <Bar dataKey="churn_rate" name="Churn rate" radius={[6, 6, 0, 0]}>
-                  {s.by_contract.map((c) => <Cell key={c.contract} fill={c.churn_rate > 0.3 ? "#ff6b81" : "#5fc6ff"} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-        <Card>
-          <CardTitle label="Lifecycle" title="Churn rate by tenure (months)" />
-          <div className="h-48">
-            <ResponsiveContainer>
-              <BarChart data={s.by_tenure} margin={{ left: -18, top: 6 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                <XAxis dataKey="bucket" tickLine={false} axisLine={false} />
-                <YAxis tickFormatter={(v) => `${Math.round(v * 100)}%`} tickLine={false} axisLine={false} />
-                <Tooltip {...tooltipStyle} formatter={(v: number) => pct(v)} />
-                <Bar dataKey="churn_rate" name="Churn rate" fill="#f6b54a" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-        <Card>
-          <CardTitle label="Exit interviews" title="Why customers left last quarter" />
-          <div className="space-y-3 pt-1">
-            {reasons.map((r) => (
-              <div key={r.reason}>
-                <div className="mb-1 flex justify-between text-xs">
-                  <span className="text-muted">{r.reason}</span>
-                  <span className="num text-text">{num(r.customers)}</span>
-                </div>
-                <div className="h-1.5 rounded-full bg-white/5">
-                  <div className="h-full rounded-full bg-bad/70" style={{ width: `${(r.customers / reasons[0].customers) * 100}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-
-      <div className="mt-4 grid gap-4 xl:grid-cols-5">
-        <Card className="xl:col-span-2">
-          <CardTitle label="Geography" title="Value at risk across California"
-            hint="Cities with 15+ customers. Bubble size = value at risk, colour = average risk." />
-          <div className="h-72">
-            <ResponsiveContainer>
-              <ScatterChart margin={{ left: -10, right: 10, top: 6 }}>
-                <XAxis type="number" dataKey="lon" domain={["dataMin - 0.5", "dataMax + 0.5"]} hide />
-                <YAxis type="number" dataKey="lat" domain={["dataMin - 0.5", "dataMax + 0.5"]} hide />
-                <ZAxis type="number" dataKey="value_at_risk" range={[40, 900]} />
-                <Tooltip {...tooltipStyle} content={({ payload }) => {
-                  const c = payload?.[0]?.payload;
-                  return c ? (
-                    <div className="card px-3 py-2 text-xs">
-                      <div className="font-medium text-text">{c.city}</div>
-                      <div className="text-muted">{c.customers} customers · avg risk {pct(c.avg_risk)}</div>
-                      <div className="text-beam">{money(c.value_at_risk)} at risk</div>
-                    </div>
-                  ) : null;
-                }} />
-                <Scatter data={s.top_cities}>
-                  {s.top_cities.map((c) => (
-                    <Cell key={c.city} fill={c.avg_risk > 0.3 ? "#ff6b81" : c.avg_risk > 0.2 ? "#f6b54a" : "#5fc6ff"} fillOpacity={0.55} stroke="none" />
-                  ))}
-                </Scatter>
-              </ScatterChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        <Card className="xl:col-span-3">
-          <CardTitle label="Act today" title="Highest value at risk"
-            right={<Link href="/customers" className="text-xs text-sky hover:underline">All customers →</Link>} />
-          <div className="overflow-x-auto scrollbar-thin">
-            <table className="w-full text-sm">
+          <CardTitle title="Call these customers first" label="Highest value at risk among customers still with you"
+            right={<Link href="/customers" className="text-[13px] text-muted transition-colors hover:text-text">All customers →</Link>} />
+          <div className="-mx-5 overflow-x-auto scrollbar-thin">
+            <table className="w-full min-w-[760px] text-[14px]">
               <thead>
-                <tr className="text-left text-[11px] uppercase tracking-wider text-faint">
-                  <th className="pb-2 font-medium">Customer</th>
-                  <th className="pb-2 font-medium">Risk</th>
-                  <th className="pb-2 text-right font-medium">CLV</th>
-                  <th className="pb-2 font-medium pl-4">Play</th>
-                  <th className="pb-2 font-medium">Offer</th>
+                <tr className="text-left text-[13px] text-faint">
+                  <th className="px-5 pb-2 font-normal">Customer</th>
+                  <th className="pb-2 font-normal">Churn risk</th>
+                  <th className="pb-2 text-right font-normal">Worth if kept</th>
+                  <th className="pb-2 text-right font-normal">At risk</th>
+                  <th className="pb-2 pl-8 font-normal">Play</th>
+                  <th className="px-5 pb-2 font-normal">Offer</th>
                 </tr>
               </thead>
               <tbody>
                 {s.top_at_risk.map((c) => (
-                  <tr key={c.customer_id} className="border-t border-line/70 hover:bg-white/[0.02]">
-                    <td className="py-2.5">
-                      <Link href={`/customers/${c.customer_id}`} className="font-medium text-text hover:text-beam">{c.customer_id}</Link>
-                      <div className="text-[11px] text-faint">{c.city} · {c.contract}</div>
+                  <tr key={c.customer_id} className="group border-t border-line transition-colors hover:bg-panel-2/60">
+                    <td className="px-5 py-2.5">
+                      <Link href={`/customers/${c.customer_id}`} className="num font-medium text-text group-hover:text-lamp">{c.customer_id}</Link>
+                      <div className="text-[13px] text-faint">{c.city} · {c.contract}</div>
                     </td>
                     <td><RiskBar p={c.churn_probability} /></td>
                     <td className="num text-right">{money(c.clv)}</td>
-                    <td className="pl-4"><Badge tone={priorityTone(c.priority)}>{c.play}</Badge></td>
-                    <td className="text-xs text-muted">{c.best_offer}</td>
+                    <td className="num text-right text-lamp">{money(c.value_at_risk)}</td>
+                    <td className="pl-8"><Badge tone={priorityTone(c.priority)}>{c.play}</Badge></td>
+                    <td className="px-5 text-[13px] text-muted">{c.best_offer}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </Card>
-      </div>
+      </Reveal>
 
-      <Card className="mt-4">
-        <CardTitle label="Where to focus" title="At-risk customers by recommended play"
-          hint="Each at-risk customer's play is chosen from their strongest churn drivers (SHAP)." />
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-          {plays.map((p) => (
-            <Link key={p.play} href={`/customers?play=${encodeURIComponent(p.play)}&priority=Save+now`}
-              className="card card-hover !rounded-xl p-4">
-              <div className="num text-2xl font-semibold text-text">{num(p.customers)}</div>
-              <div className="mt-1 text-xs text-muted">{p.play}</div>
-            </Link>
-          ))}
-        </div>
-      </Card>
+      <Reveal className="mt-4 grid gap-4 xl:grid-cols-3">
+        <Card>
+          <CardTitle title="Churn by contract" label={`${worstContract.contract} customers leave at ${pct(worstContract.churn_rate)}`} />
+          <Bars data={s.by_contract.map((c) => ({ k: c.contract, v: c.churn_rate }))} hot={worstContract.contract} />
+        </Card>
+        <Card>
+          <CardTitle title="Churn by tenure" label={`Months ${worstTenure.bucket} are the riskiest: ${pct(worstTenure.churn_rate)}`} />
+          <Bars data={s.by_tenure.map((c) => ({ k: c.bucket, v: c.churn_rate }))} hot={worstTenure.bucket} />
+        </Card>
+        <Card>
+          <CardTitle title="Why customers left" label="Exit interviews, last quarter" />
+          <div className="flex flex-col gap-3 pt-1">
+            {reasons.map(([r, n], i) => (
+              <div key={r}>
+                <div className="mb-1 flex justify-between text-[13px]">
+                  <span className="text-muted">{r}</span><span className="num text-text">{num(n)}</span>
+                </div>
+                <div className="h-1 rounded-full bg-panel-2">
+                  <div className="h-full rounded-full" style={{ width: `${(n / reasons[0][1]) * 100}%`, background: i === 0 ? "var(--lamp)" : "var(--dim)" }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </Reveal>
     </div>
   );
 }
 
-function LoadingGrid() {
+function Bars({ data, hot }: { data: { k: string; v: number }[]; hot: string }) {
+  return (
+    <div className="h-44">
+      <ResponsiveContainer>
+        <BarChart data={data} margin={{ left: -22, top: 6, right: 4 }}>
+          <XAxis dataKey="k" tickLine={false} axisLine={{ stroke: "var(--rule-2)" }} />
+          <YAxis tickFormatter={(v) => `${Math.round(v * 100)}%`} tickLine={false} axisLine={false} tickCount={4} />
+          <Tooltip {...tooltipStyle} formatter={(v: number) => pct(v)} />
+          <Bar dataKey="v" name="Churn rate" radius={[3, 3, 0, 0]} maxBarSize={44}>
+            {data.map((d) => <Cell key={d.k} fill={d.k === hot ? "#f5b547" : "#3a4252"} />)}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function Loading() {
   return (
     <div className="space-y-4">
       <Skeleton className="h-16 w-1/2" />
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-        {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-28" />)}
-      </div>
-      <div className="grid gap-4 xl:grid-cols-3">
-        <Skeleton className="h-72 xl:col-span-2" /><Skeleton className="h-72" />
+      <Skeleton className="h-28" />
+      <div className="grid gap-4 xl:grid-cols-12">
+        <Skeleton className="h-[520px] xl:col-span-8" /><Skeleton className="h-[520px] xl:col-span-4" />
       </div>
     </div>
   );

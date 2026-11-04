@@ -2,7 +2,7 @@
 
 import { AlertTriangle, CheckCircle2, Scale, ShieldCheck } from "lucide-react";
 import {
-  Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ReferenceLine, ResponsiveContainer, Scatter,
+  Bar, BarChart, CartesianGrid, Cell, Line, ReferenceLine, ResponsiveContainer, Scatter,
   ComposedChart, Tooltip, XAxis, YAxis,
 } from "recharts";
 
@@ -64,7 +64,7 @@ export default function ModelLab() {
           <div className="overflow-x-auto scrollbar-thin">
             <table className="w-full min-w-[720px] text-sm">
               <thead>
-                <tr className="text-left text-[11px] uppercase tracking-wider text-faint">
+                <tr className="text-left text-[13px] text-faint">
                   <th className="px-5 py-2 font-medium">Model</th>
                   <th className="px-3 py-2 text-right font-medium">ROC-AUC</th>
                   <th className="px-3 py-2 text-right font-medium">PR-AUC</th>
@@ -104,7 +104,7 @@ export default function ModelLab() {
         <Card>
           <CardTitle label="Leakage audit" title="The trap we avoided" right={<AlertTriangle size={16} className="text-warn" />} />
           <div className="rounded-lg border border-bad/25 bg-bad/[0.06] p-4">
-            <div className="num text-3xl font-semibold text-bad">{r.leakage.leaky_auc.toFixed(3)}</div>
+            <div className="font-display num text-3xl font-normal text-bad">{r.leakage.leaky_auc.toFixed(3)}</div>
             <div className="text-xs text-muted">AUC if post-churn fields are kept. Too good to be true.</div>
           </div>
           <div className="mt-3 space-y-1.5">
@@ -132,9 +132,9 @@ export default function ModelLab() {
                 <XAxis type="number" dataKey="mean_pred" domain={[0, 1]} tickFormatter={(v) => `${v * 100}%`} tickLine={false} axisLine={false} />
                 <YAxis type="number" domain={[0, 1]} tickFormatter={(v) => `${v * 100}%`} tickLine={false} axisLine={false} />
                 <Tooltip {...tooltipStyle} formatter={(v: number) => pct(v)} />
-                <Line dataKey="ideal" stroke="#5a6890" strokeDasharray="4 4" dot={false} name="Perfect" />
-                <Line dataKey="actual" stroke="#f6b54a" strokeWidth={2} dot={{ r: 3 }} name="Actual" />
-                <Scatter dataKey="actual" fill="#f6b54a" />
+                <Line dataKey="ideal" stroke="#4a5263" strokeDasharray="4 4" dot={false} name="Perfect" />
+                <Line dataKey="actual" stroke="#f5b547" strokeWidth={2} dot={{ r: 3 }} name="Actual" />
+                <Scatter dataKey="actual" fill="#f5b547" />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -149,7 +149,7 @@ export default function ModelLab() {
                 <YAxis type="category" dataKey="label" width={150} tickLine={false} axisLine={false} interval={0} />
                 <Tooltip {...tooltipStyle} formatter={(v: number) => v.toFixed(3)} />
                 <Bar dataKey="mean_abs_shap" radius={[0, 5, 5, 0]} barSize={11}>
-                  {imp.map((d) => <Cell key={d.label} fill={d.direction > 0 ? "#ff6b81" : "#5fc6ff"} />)}
+                  {imp.map((d) => <Cell key={d.label} fill={d.direction > 0 ? "#f2685c" : "#8da4c4"} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -168,10 +168,10 @@ export default function ModelLab() {
               <BarChart data={hr} layout="vertical" margin={{ left: 0, right: 10 }}>
                 <XAxis type="number" tickFormatter={(v) => `${(2 ** v).toFixed(1)}×`} tickLine={false} axisLine={false} />
                 <YAxis type="category" dataKey="label" width={150} tickLine={false} axisLine={false} interval={0} />
-                <ReferenceLine x={0} stroke="#263866" />
+                <ReferenceLine x={0} stroke="#262d3d" />
                 <Tooltip {...tooltipStyle} formatter={(_v, _n, item) => [`${item.payload.hazard_ratio.toFixed(2)}× hazard`, item.payload.label]} />
                 <Bar dataKey="log" barSize={11} radius={4}>
-                  {hr.map((d) => <Cell key={d.feature} fill={d.log > 0 ? "#ff6b81" : "#3ddc97"} />)}
+                  {hr.map((d) => <Cell key={d.feature} fill={d.log > 0 ? "#f2685c" : "#4fc48a"} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -185,12 +185,12 @@ export default function ModelLab() {
       <div className="mt-4 grid gap-4 xl:grid-cols-3">
         <Card className="xl:col-span-2 !p-0">
           <div className="p-5 pb-2"><CardTitle label="Responsible AI" title="Fairness audit on the holdout (threshold 50%)"
-            right={<Scale size={16} className="text-violet" />}
+            right={<Scale size={16} className="text-text" />}
             hint="TPR = share of real churners the model catches. Equal opportunity asks for similar TPR across groups." /></div>
           <div className="overflow-x-auto scrollbar-thin">
             <table className="w-full min-w-[640px] text-sm">
               <thead>
-                <tr className="text-left text-[11px] uppercase tracking-wider text-faint">
+                <tr className="text-left text-[13px] text-faint">
                   <th className="px-5 py-2 font-medium">Group</th>
                   <th className="px-3 py-2 text-right font-medium">n</th>
                   <th className="px-3 py-2 text-right font-medium">Actual churn</th>

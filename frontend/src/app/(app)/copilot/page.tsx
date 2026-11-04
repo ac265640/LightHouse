@@ -91,12 +91,12 @@ export default function CopilotPage() {
       <PageHeader index="05" label="Copilot" title="Ask your retention data anything"
         subtitle="Gemini with function calling over the Lighthouse API. Every number in an answer comes from a tool call you can inspect, never from the model's memory."
         right={<button onClick={brief} disabled={busy}
-          className="inline-flex items-center gap-2 rounded-lg border border-violet/40 bg-violet/10 px-4 py-2.5 text-sm font-medium text-violet transition hover:bg-violet/20 disabled:opacity-50">
+          className="inline-flex items-center gap-2 rounded-lg border border-line-2 bg-panel px-4 py-2.5 text-sm font-medium text-text transition hover:bg-panel-2 disabled:opacity-50">
           <FileText size={15} /> Executive brief
         </button>} />
 
       {status && !status.configured && (
-        <div className="mb-4 flex items-start gap-3 rounded-xl border border-warn/30 bg-warn/[0.06] p-4 text-sm">
+        <div className="mb-4 flex items-start gap-3 rounded-lg bg-panel-2 p-4 text-sm">
           <KeyRound size={16} className="mt-0.5 shrink-0 text-warn" />
           <div>
             <div className="font-medium text-text">AI key not configured</div>
@@ -109,22 +109,22 @@ export default function CopilotPage() {
         <div className="flex-1 space-y-5 overflow-y-auto p-5 scrollbar-thin" style={{ maxHeight: "calc(100vh - 22rem)" }}>
           {msgs.length === 0 && (
             <div className="py-6">
-              <div className="mb-5 flex items-center gap-2 text-muted"><Sparkles size={16} className="text-violet" /> Try asking</div>
+              <div className="mb-5 flex items-center gap-2 text-muted"><Sparkles size={16} className="text-text" /> Try asking</div>
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {SUGGESTIONS.map((s) => (
                   <button key={s} onClick={() => send(s)}
-                    className="card card-hover !rounded-xl p-4 text-left text-sm text-text/90 transition hover:text-text">{s}</button>
+                    className="card card-hover p-4 text-left text-sm text-text/90 transition hover:text-text">{s}</button>
                 ))}
               </div>
             </div>
           )}
           {msgs.map((m, i) => m.role === "user" ? (
             <div key={i} className="flex justify-end">
-              <div className="max-w-[80%] rounded-2xl rounded-br-md bg-panel-2 px-4 py-2.5 text-sm">{m.content}</div>
+              <div className="max-w-[80%] rounded-lg bg-panel-2 px-4 py-2.5 text-sm">{m.content}</div>
             </div>
           ) : (
             <div key={i} className="flex gap-3">
-              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-violet/15"><Sparkles size={14} className="text-violet" /></div>
+              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-panel-2"><Sparkles size={14} className="text-text" /></div>
               <div className="min-w-0 max-w-[85%]">
                 {m.tool_calls && m.tool_calls.length > 0 && (
                   <div className="mb-2 flex flex-wrap gap-1.5">
