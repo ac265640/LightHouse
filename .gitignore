@@ -33,3 +33,7 @@ catboost_info/
 
 # Local tooling
 .claude/
+
+# Frontend build output and design inspector screenshots
+frontend/.next-build/
+.taste-skill/inspect/

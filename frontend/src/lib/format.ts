@@ -17,11 +17,11 @@ export const num = (v: number | null | undefined, digits = 0) =>
     : new Intl.NumberFormat("en-US", { maximumFractionDigits: digits }).format(v);
 
 export const riskColor = (p: number) =>
-  p >= 0.75 ? "var(--bad)" : p >= 0.5 ? "#ff9f6b" : p >= 0.2 ? "var(--warn)" : "var(--good)";
+  p >= 0.5 ? "var(--bad)" : p >= 0.2 ? "var(--lamp)" : "var(--dim)";
 
 export const PRIORITY_COLORS: Record<string, string> = {
-  "Save now": "#ff6b81",
-  "Low-cost save": "#f6b54a",
-  Grow: "#5fc6ff",
-  Maintain: "#3ddc97",
+  "Save now": "#f2685c",
+  "Low-cost save": "#f5b547",
+  Grow: "#8da4c4",
+  Maintain: "#4a5263",
 };
