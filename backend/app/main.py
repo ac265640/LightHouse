@@ -211,6 +211,13 @@ def simulate(req: SimulateRequest):
     if "internet_type" in req.changes:
         changed.loc[0, "internet_service"] = int(req.changes["internet_type"] != "None")
     scored = store.score_rows(pd.concat([base, changed], ignore_index=True))
+    # Anchor to the customer's honest (out-of-fold) score and apply the model's
+    # change in log-odds, so "before" always matches the score shown elsewhere.
+    honest = float(store.customers.at[req.customer_id, "churn_probability"])
+    logit = lambda p: np.log(np.clip(p, 1e-4, 1 - 1e-4) / (1 - np.clip(p, 1e-4, 1 - 1e-4)))
+    shift = logit(scored.at[1, "churn_probability"]) - logit(scored.at[0, "churn_probability"])
+    scored.at[0, "churn_probability"] = honest
+    scored.at[1, "churn_probability"] = float(1 / (1 + np.exp(-(logit(honest) + shift))))
     b, a = scored.iloc[0], scored.iloc[1]
     return _clean({
         "before": {"churn_probability": b.churn_probability, "clv": b.clv,
