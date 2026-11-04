@@ -1,0 +1,915 @@
+<meta charset="utf-8">
+<title>Lighthouse Pitch Deck</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* Layout: fixed 1920x1080 stage scaled to any screen; night-sea navy slides lit by one amber beam,
+   with fog-grey light slides for the evidence pages. Single deliberate look (no theme switching). */
+:root {
+  color-scheme: dark;
+  --sea: #0E1729; --sea-alt: #15213A; --stage: #070D19;
+  --fog: #ECEFF3; --fog-alt: #DFE4EB;
+  --beam: #F6B54A; --sky: #5FC6FF; --bad: #F07A6A; --good: #6FD3A0;
+  --text-warm: #E6EAF1; --muted-dark: #8D9BB3; --hint-dark: #56637C;
+  --ink: #111A2C; --muted-light: #4F5B70; --hint-light: #8A94A6;
+  --border-dark: #24324F; --border-light: #C5CDD8;
+  --beam-ink: #A86A0C;
+
+  --f-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --f-sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+
+  --sz-display: 184px; --sz-h1: 96px; --sz-h2: 62px; --sz-dense: 52px; --sz-h3: 36px;
+  --sz-lead: 29px; --sz-body: 23px; --sz-body-sm: 21px; --sz-caption: 19px; --sz-label: 16px;
+  --sz-stat: 104px; --sz-stat-sm: 62px; --sz-stat-xs: 42px;
+  --pad-x: 120px; --pad-y: 54px; --gap-lg: 36px; --gap-md: 24px; --gap-sm: 12px;
+  --ease-in: cubic-bezier(0.16, 1, 0.3, 1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--stage); color: var(--text-warm); font-family: var(--f-sans); -webkit-font-smoothing: antialiased; }
+
+.deck-viewport { position: fixed; inset: 0; overflow: hidden; background: var(--stage); }
+.deck-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; transform-origin: 0 0; }
+.slide { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; visibility: hidden; opacity: 0; pointer-events: none; transition: opacity .45s ease; }
+.slide.visible { visibility: visible; opacity: 1; pointer-events: auto; z-index: 1; }
+.slide.dark { background: var(--sea); color: var(--text-warm); }
+.slide.light { background: var(--fog); color: var(--ink); }
+.slide.dark::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
+  background-size: 80px 80px; }
+
+/* Type */
+h1, h2, h3, .display, .quote, .stat-value, .dense { font-family: var(--f-serif); text-wrap: balance; }
+.label, .kicker, .mono, .tag, .numeral { font-family: var(--f-mono); }
+.display { font-size: var(--sz-display); font-weight: 700; line-height: .95; letter-spacing: -.02em; }
+.h1 { font-size: var(--sz-h1); font-weight: 600; line-height: 1.06; letter-spacing: -.01em; }
+.h2 { font-size: var(--sz-h2); font-weight: 600; line-height: 1.16; }
+.dense { font-size: var(--sz-dense); font-weight: 600; line-height: 1.2; }
+.h3 { font-size: var(--sz-h3); font-weight: 500; line-height: 1.26; }
+.lead { font-size: var(--sz-lead); line-height: 1.5; }
+.body { font-size: var(--sz-body); line-height: 1.55; }
+.body.sm { font-size: var(--sz-body-sm); line-height: 1.5; }
+.caption { font-size: var(--sz-caption); line-height: 1.45; }
+.label, .kicker { font-size: var(--sz-label); font-weight: 500; letter-spacing: .14em; text-transform: uppercase; }
+.kicker { color: var(--beam); }
+.slide.light .kicker { color: var(--beam-ink); }
+.quote { font-size: 54px; font-weight: 400; line-height: 1.28; letter-spacing: -.01em; }
+.numeral { font-size: 22px; color: var(--beam); letter-spacing: .08em; }
+.slide.light .numeral { color: var(--beam-ink); }
+em { font-style: italic; color: var(--beam); font-weight: 500; }
+.slide.light em { color: var(--beam-ink); }
+.lead em, .body em { font-family: var(--f-serif); }
+.slide.dark .lead, .slide.dark .body { color: var(--muted-dark); }
+.slide.dark .caption { color: var(--hint-dark); }
+.slide.light .lead, .slide.light .body { color: var(--muted-light); }
+.slide.light .caption { color: var(--hint-light); }
+.stat-value { font-size: var(--sz-stat); font-weight: 600; line-height: 1; letter-spacing: -.02em; color: var(--beam); font-variant-numeric: tabular-nums; }
+.slide.light .stat-value { color: var(--beam-ink); }
+.stat-value.sm { font-size: var(--sz-stat-sm); }
+.stat-value.xs { font-size: var(--sz-stat-xs); }
+.stat-value.bad { color: var(--bad); }
+.slide.light .stat-value.bad { color: #C0473A; }
+.stat-value.muted { color: var(--muted-dark); }
+.slide.light .stat-value.muted { color: var(--hint-light); }
+.stat-label { font-family: var(--f-sans); font-size: var(--sz-body-sm); margin-top: 8px; }
+.slide.dark .stat-label { color: var(--muted-dark); }
+.slide.light .stat-label { color: var(--muted-light); }
+
+/* Chrome */
+.grid-frame { position: absolute; inset: 0; display: grid; grid-template-rows: auto 1fr auto; padding: var(--pad-y) var(--pad-x); }
+.chrome-bar, .foot-bar { display: flex; justify-content: space-between; align-items: baseline; }
+.chrome-bar { padding-bottom: var(--gap-sm); margin-bottom: var(--gap-md); }
+.foot-bar { padding-top: var(--gap-sm); margin-top: var(--gap-md); font-family: var(--f-mono); font-size: 16px; }
+.slide.dark .chrome-bar { border-bottom: 1px solid var(--border-dark); }
+.slide.dark .foot-bar { border-top: 1px solid var(--border-dark); color: var(--hint-dark); }
+.slide.light .chrome-bar { border-bottom: 1px solid var(--border-light); }
+.slide.light .foot-bar { border-top: 1px solid var(--border-light); color: var(--hint-light); }
+.chrome-label { color: var(--beam); }
+.slide.light .chrome-label { color: var(--beam-ink); }
+.slide.dark .counter-slot { color: var(--hint-dark); }
+.slide.light .counter-slot { color: var(--hint-light); }
+.body-area { display: flex; flex-direction: column; justify-content: center; gap: var(--gap-md); min-height: 0; }
+.chromeless { position: absolute; inset: 0; padding: var(--pad-y) var(--pad-x); display: flex; flex-direction: column; justify-content: center; }
+
+/* Components */
+.rule-short { width: 40px; height: 2px; background: var(--beam); border: none; }
+.tag { display: inline-block; border: 1px solid var(--beam); color: var(--beam); padding: .42em .9em; font-size: 15px; letter-spacing: .12em; text-transform: uppercase; width: fit-content; }
+.slide.light .tag { border-color: var(--beam-ink); color: var(--beam-ink); }
+.tag.sky { border-color: var(--sky); color: var(--sky); }
+.slide.light .tag.sky { border-color: #1F7FB3; color: #1F7FB3; }
+.tag.bad { border-color: var(--bad); color: var(--bad); }
+.slide.light .tag.bad { border-color: #C0473A; color: #C0473A; }
+
+.dash-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.dash-list li { display: flex; gap: .55em; font-size: var(--sz-body-sm); line-height: 1.45; }
+.slide.dark .dash-list li { color: var(--muted-dark); }
+.slide.light .dash-list li { color: var(--muted-light); }
+.dash-list li::before { content: "—"; font-family: var(--f-mono); color: var(--beam); flex-shrink: 0; width: 1.2em; }
+.slide.light .dash-list li::before { color: var(--beam-ink); }
+.dash-list b { font-weight: 600; }
+.slide.dark .dash-list b { color: var(--text-warm); }
+.slide.light .dash-list b { color: var(--ink); }
+
+.stat-row { display: flex; gap: var(--gap-lg); }
+.stat-row > * { flex: 1; min-width: 0; }
+.stat-card { border-top: 1px solid; padding-top: var(--gap-sm); }
+.slide.dark .stat-card { border-color: var(--border-dark); }
+.slide.light .stat-card { border-color: var(--border-light); }
+
+.cell { border: 1px solid; padding: 26px 28px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.slide.dark .cell { border-color: var(--border-dark); background: rgba(255,255,255,.025); }
+.slide.light .cell { border-color: var(--border-light); background: rgba(17,26,44,.025); }
+.cell.hero { border: 2px solid var(--beam); background: rgba(246,181,74,.07); }
+.slide.light .cell.hero { border-color: var(--beam-ink); background: rgba(168,106,12,.06); }
+.cell-title { font-family: var(--f-mono); font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--beam); }
+.slide.light .cell-title { color: var(--beam-ink); }
+
+.cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap-lg); align-items: stretch; }
+.cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap-lg); }
+.split3 { display: grid; grid-template-columns: repeat(3, 1fr); }
+.split3 > div { padding-right: var(--gap-lg); min-width: 0; }
+.split3 > div + div { padding-left: var(--gap-lg); border-left: 1px solid; }
+.slide.dark .split3 > div + div { border-color: var(--border-dark); }
+.slide.light .split3 > div + div { border-color: var(--border-light); }
+
+.exhibit-row { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 0; border-top: 1px solid; gap: 20px; }
+.exhibit-row:first-child { border-top: none; }
+.slide.dark .exhibit-row { border-color: var(--border-dark); }
+.slide.light .exhibit-row { border-color: var(--border-light); }
+.ex-key { font-family: var(--f-mono); font-size: 19px; }
+.slide.dark .ex-key { color: var(--muted-dark); }
+.slide.light .ex-key { color: var(--muted-light); }
+.ex-val { font-family: var(--f-mono); font-size: 22px; font-weight: 600; white-space: nowrap; }
+.ex-val.flag { color: var(--beam); }
+.slide.light .ex-val.flag { color: var(--beam-ink); }
+.ex-val.bad { color: var(--bad); }
+.slide.light .ex-val.bad { color: #C0473A; }
+.ex-val.good { color: var(--good); }
+.slide.light .ex-val.good { color: #1E8A57; }
+
+/* Terminal */
+.terminal { background: #080E1A; border: 1px solid #1E2A42; overflow: hidden; min-width: 0; }
+.terminal-bar { display: flex; align-items: center; gap: 7px; padding: 9px 14px; background: #101828; border-bottom: 1px solid #1E2A42; }
+.t-dot { width: 10px; height: 10px; border-radius: 50%; }
+.t-dot.r { background: #E0645A; } .t-dot.y { background: #E0B85A; } .t-dot.g { background: #5AC084; }
+.t-title { margin-left: 8px; font-family: var(--f-mono); font-size: 13px; color: #66748F; }
+.terminal-body { padding: 16px 20px; font-family: var(--f-mono); font-size: 18px; line-height: 1.7; color: #C9D1DE; white-space: pre; overflow: hidden; }
+.tk-key { color: #8FB8E6; } .tk-str { color: var(--beam); } .tk-num { color: #8FD3A8; }
+.tk-muted { color: #5C6A82; } .tk-bad { color: #F07A6A; font-weight: 600; } .tk-good { color: #6FD3A0; font-weight: 600; }
+.cursor { display: inline-block; width: 9px; height: 18px; background: var(--beam); vertical-align: middle; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Tracker */
+.h-tracker { position: relative; height: 2px; margin: 4px 0 22px; }
+.h-line { position: absolute; inset: 0; }
+.slide.dark .h-line { background: var(--border-dark); }
+.slide.light .h-line { background: var(--border-light); }
+.h-line::after { content: ""; position: absolute; inset: 0; background: var(--beam); transform-origin: left; transform: scaleX(0); transition: transform 1.2s var(--ease-in) .15s; }
+.slide.light .h-line::after { background: var(--beam-ink); }
+.slide.visible .h-line::after { transform: scaleX(1); }
+.h-dot { position: absolute; top: 50%; width: 11px; height: 11px; border-radius: 50%; background: var(--beam); transform: translate(-50%,-50%) scale(0); transition: transform .45s var(--ease-in); }
+.slide.light .h-dot { background: var(--beam-ink); }
+.h-dot:nth-of-type(2) { transition-delay: .35s; } .h-dot:nth-of-type(3) { transition-delay: .6s; } .h-dot:nth-of-type(4) { transition-delay: .85s; }
+.slide.visible .h-dot { transform: translate(-50%,-50%) scale(1); }
+
+/* Architecture */
+.arch { display: flex; flex-direction: column; gap: 8px; }
+.arch-row { display: flex; gap: 10px; }
+.arch-row > .arch-box { flex: 1; min-width: 0; }
+.arch-box { border: 1px solid var(--border-dark); background: rgba(255,255,255,.035); padding: 13px 18px; position: relative; overflow: hidden; }
+.arch-box::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(246,181,74,.16), transparent); transform: translateX(-100%); }
+.slide.visible .arch-box::after { animation: sweep 1.1s var(--ease-in) forwards; animation-delay: calc(var(--i, 0) * .12s + .3s); }
+@keyframes sweep { to { transform: translateX(100%); } }
+.arch-box .num { font-family: var(--f-mono); font-size: 14px; color: var(--beam); letter-spacing: .07em; }
+.arch-box .nm { font-family: var(--f-serif); font-size: 23px; font-weight: 600; color: var(--text-warm); margin-top: 3px; line-height: 1.18; }
+.arch-box .tech { font-family: var(--f-mono); font-size: 14.5px; color: var(--muted-dark); margin-top: 5px; line-height: 1.4; }
+.arch-box.ai { border-color: rgba(95,198,255,.55); background: rgba(95,198,255,.06); }
+.arch-box.ai .num { color: var(--sky); }
+.arch-io { border: 1px dashed var(--border-dark); padding: 9px 18px; font-family: var(--f-mono); font-size: 15px; color: var(--hint-dark); text-align: center; }
+.arch-gap { text-align: center; color: var(--beam); font-family: var(--f-mono); font-size: 16px; line-height: 1; }
+
+/* Charts */
+.chart-box { position: relative; min-width: 0; }
+.chart-box canvas { display: block; }
+
+/* Meter bars (CSS) */
+.meter { height: 8px; position: relative; overflow: hidden; }
+.slide.dark .meter { background: var(--border-dark); }
+.slide.light .meter { background: var(--border-light); }
+.meter > i { position: absolute; inset: 0; background: var(--beam); transform: scaleX(0); transform-origin: left; transition: transform 1.1s var(--ease-in) .3s; }
+.slide.light .meter > i { background: var(--beam-ink); }
+.meter > i.sky { background: var(--sky); }
+.slide.light .meter > i.sky { background: #1F7FB3; }
+.meter > i.bad { background: var(--bad); }
+.slide.visible .meter > i { transform: scaleX(var(--f, 1)); }
+
+/* Title slide: the lighthouse */
+.lh-scene { position: absolute; right: 0; top: 0; width: 1920px; height: 1080px; pointer-events: none; overflow: hidden; }
+.lh-beam { position: absolute; left: 1488px; top: 318px; width: 2600px; height: 2600px; margin: -1300px 0 0 -1300px; border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(246,181,74,0) 0deg, rgba(246,181,74,.20) 9deg, rgba(246,181,74,.34) 14deg, rgba(246,181,74,.20) 19deg, rgba(246,181,74,0) 28deg, transparent 180deg, rgba(246,181,74,0) 180deg, rgba(246,181,74,.12) 192deg, rgba(246,181,74,0) 206deg, transparent 360deg);
+  animation: sweepBeam 9s linear infinite; mix-blend-mode: screen; }
+@keyframes sweepBeam { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.lh-glow { position: absolute; left: 1488px; top: 318px; width: 160px; height: 160px; margin: -80px 0 0 -80px; border-radius: 50%; background: radial-gradient(circle, rgba(255,220,150,.95), rgba(246,181,74,.35) 40%, rgba(246,181,74,0) 70%); animation: pulse 3s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.18); opacity: .8; } }
+.lh-tower { position: absolute; left: 1380px; top: 300px; width: 216px; height: 780px; }
+.sea-line { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; background: linear-gradient(180deg, rgba(14,23,41,0), #0A1222 60%); }
+.waves { position: absolute; left: 0; right: 0; bottom: 30px; height: 60px; opacity: .5; }
+.waves path { fill: none; stroke: var(--border-dark); stroke-width: 2; }
+
+/* Reveal */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .65s var(--ease-in), transform .65s var(--ease-in); }
+.slide.visible .reveal { opacity: 1; transform: none; }
+.reveal[data-d="1"] { transition-delay: .06s; } .reveal[data-d="2"] { transition-delay: .14s; } .reveal[data-d="3"] { transition-delay: .22s; }
+.reveal[data-d="4"] { transition-delay: .30s; } .reveal[data-d="5"] { transition-delay: .38s; } .reveal[data-d="6"] { transition-delay: .46s; }
+
+/* Controls (outside the stage, real screen pixels) */
+.deck-controls { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 1000; display: flex; align-items: center; gap: 14px;
+  background: rgba(10,16,30,.85); border: 1px solid rgba(246,181,74,.3); padding: 8px 16px; border-radius: 100px; backdrop-filter: blur(6px); font-family: var(--f-mono); font-size: 12px; color: var(--text-warm); }
+.deck-controls button { background: none; border: none; color: var(--text-warm); cursor: pointer; font-family: var(--f-mono); font-size: 15px; line-height: 1; padding: 6px 8px; border-radius: 6px; }
+.deck-controls button:hover, .deck-controls button:focus-visible { color: var(--beam); outline: 1px solid rgba(246,181,74,.5); }
+.deck-counter { min-width: 52px; text-align: center; letter-spacing: .05em; font-variant-numeric: tabular-nums; }
+.sep { width: 1px; height: 16px; background: rgba(230,234,241,.25); }
+.progress { position: fixed; left: 0; top: 0; height: 3px; background: var(--beam); z-index: 1001; transition: width .4s var(--ease-in); }
+#notesPanel { position: fixed; left: 0; right: 0; bottom: 0; max-height: 34vh; overflow-y: auto; background: rgba(6,10,20,.96); color: var(--text-warm); font-family: var(--f-sans); font-size: 15px; line-height: 1.6;
+  padding: 18px max(24px, env(safe-area-inset-right, 0px)) calc(76px + env(safe-area-inset-bottom, 0px)) max(24px, env(safe-area-inset-left, 0px)); border-top: 1px solid rgba(246,181,74,.35); z-index: 999; transform: translateY(100%); transition: transform .3s var(--ease-in); }
+#notesPanel.show { transform: none; }
+#notesPanel .nk { font-family: var(--f-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--beam); margin-bottom: 8px; }
+.hint { position: fixed; top: calc(14px + env(safe-area-inset-top, 0px)); right: max(14px, env(safe-area-inset-right, 0px)); z-index: 1001; font-family: var(--f-mono); font-size: 11px; color: rgba(230,234,241,.6);
+  background: rgba(10,16,30,.75); border: 1px solid rgba(246,181,74,.25); padding: 6px 10px; border-radius: 4px; pointer-events: none; opacity: 0; transition: opacity .4s ease; }
+.hint.show { opacity: 1; }
+@media (max-width: 600px) { .deck-controls { gap: 6px; padding: 6px 10px; } .deck-controls .opt { display: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .15s !important; } }
+</style>
+
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+<!-- 01 · TITLE -->
+<section class="slide dark visible" data-notes="Good evening. I'm Amit Singh Chauhan. This is Lighthouse, our answer to DN-BU-01, Customer Churn Prediction and Retention Strategy. A lighthouse doesn't stop ships from sailing. It shows which ones are heading for the rocks, early enough to change course. That is what this system does for a subscription business: it finds the customers who are about to leave, works out which of them are worth saving and can actually be saved, and tells the team exactly what to do.">
+  <div class="lh-scene" aria-hidden="true">
+    <div class="lh-beam"></div>
+    <svg class="lh-tower" viewBox="0 0 216 780" xmlns="http://www.w3.org/2000/svg">
+      <rect x="78" y="0" width="60" height="10" fill="#1B2742"/>
+      <path d="M70 10 L146 10 L140 34 L76 34 Z" fill="#22304F"/>
+      <rect x="80" y="34" width="56" height="44" fill="#2A3A5E" stroke="#3A4D76" stroke-width="2"/>
+      <rect x="86" y="40" width="44" height="32" fill="#FFE2A6"/>
+      <rect x="62" y="78" width="92" height="12" fill="#22304F"/>
+      <path d="M74 90 L142 90 L176 780 L40 780 Z" fill="#1A253F"/>
+      <path d="M77 150 L139 150 L143 230 L73 230 Z" fill="#F6B54A" opacity=".88"/>
+      <path d="M70 330 L146 330 L151 420 L65 420 Z" fill="#F6B54A" opacity=".88"/>
+      <path d="M61 520 L155 520 L160 620 L56 620 Z" fill="#F6B54A" opacity=".88"/>
+      <rect x="100" y="260" width="16" height="28" rx="8" fill="#0E1729"/>
+      <rect x="100" y="455" width="16" height="28" rx="8" fill="#0E1729"/>
+    </svg>
+    <div class="lh-glow"></div>
+    <div class="sea-line"></div>
+    <svg class="waves" viewBox="0 0 1920 60" preserveAspectRatio="none"><path d="M0 30 Q 60 10 120 30 T 240 30 T 360 30 T 480 30 T 600 30 T 720 30 T 840 30 T 960 30 T 1080 30 T 1200 30 T 1320 30 T 1440 30 T 1560 30 T 1680 30 T 1800 30 T 1920 30"/></svg>
+  </div>
+  <div class="chromeless" style="justify-content:flex-start; padding-top:150px;">
+    <p class="kicker reveal" data-d="1">DataNova 2026 · DN-BU-01 · Customer churn and retention</p>
+    <h1 class="display reveal" data-d="2" style="margin-top:26px;">Light<em>house</em></h1>
+    <p class="h3 reveal" data-d="3" style="color:var(--muted-dark); font-weight:400; margin-top:22px; max-width:900px;">See who is leaving, who is worth saving, and what will actually keep them.</p>
+    <div class="rule-short reveal" data-d="4" style="margin-top:64px;"></div>
+    <p class="h3 reveal" data-d="4" style="margin-top:16px;">Amit Singh Chauhan</p>
+    <p class="caption reveal" data-d="5" style="color:var(--muted-dark); margin-top:8px;">Final Year B.Tech CSE (AI/ML) · VIT Chennai</p>
+    <p class="caption reveal" data-d="6" style="color:var(--hint-dark); margin-top:14px; max-width:880px; line-height:1.7;">Two-time hackathon finalist · Award winner, PSB Hackathon Series 2026 · Lead, Data Science Club VIT Chennai</p>
+  </div>
+  <div class="reveal" data-d="6" style="position:absolute; left:120px; bottom:60px; display:flex; gap:48px; font-family:var(--f-mono); font-size:18px; color:var(--muted-dark); z-index:2;">
+    <span>GitHub → github.com/ac265640/LightHouse</span>
+    <span>Stack → FastAPI · Next.js · Gemini</span>
+  </div>
+</section>
+
+<!-- 02 · THE PROBLEM -->
+<section class="slide dark" data-notes="Here is the cost of doing nothing. In one quarter, this California telecom lost 1,869 of its 7,043 customers. That's 26.5 percent, and it took 139 thousand dollars of monthly revenue out the door. And it isn't over: the 5,174 customers who stayed still carry 389 thousand dollars of lifetime value that our model says is at risk. Every churn dashboard can tell you who might leave. The hard question is which of those people you can still save, with what, and whether the save is worth its cost.">
+  <div class="grid-frame">
+    <div class="chrome-bar"><span class="chrome-label label">The problem</span><span class="counter-slot label"></span></div>
+    <div class="body-area">
+      <p class="quote reveal" data-d="1" style="max-width:1500px;">Every churn model tells you who will leave. Almost none tell you <em>who you can still keep.</em></p>
+      <div class="stat-row reveal" data-d="2" style="margin-top:26px;">
+        <div class="stat-card"><div class="stat-value" data-countup="26.5" data-decimals="1" data-suffix="%">0</div><div class="stat-label">of customers churned in a single quarter</div></div>
+        <div class="stat-card"><div class="stat-value" data-countup="1869">0</div><div class="stat-label">customers gone, out of 7,043</div></div>
+        <div class="stat-card"><div class="stat-value" data-prefix="$" data-countup="139" data-suffix="k">0</div><div class="stat-label">monthly revenue that walked out</div></div>
+        <div class="stat-card"><div class="stat-value" data-prefix="$" data-countup="389" data-suffix="k">0</div><div class="stat-label">lifetime value still at risk in the 5,174 who stayed</div></div>
+      </div>
+      <div class="cols-2 reveal" data-d="3" style="margin-top:20px; grid-template-columns: 1.1fr 1fr;">
+        <div class="cell">
+          <div class="cell-title">Where churn concentrates</div>
+          <div style="display:grid; grid-template-columns: 240px 1fr 80px; gap:14px 18px; align-items:center; font-size:20px;">
+            <span class="ex-key">Month-to-month</span><div class="meter"><i style="--f:.458"></i></div><span class="ex-val flag">45.8%</span>
+            <span class="ex-key">One-year contract</span><div class="meter"><i style="--f:.107"></i></div><span class="ex-val">10.7%</span>
+            <span class="ex-key">Two-year contract</span><div class="meter"><i style="--f:.025"></i></div><span class="ex-val">2.5%</span>
+            <span class="ex-key">First 6 months</span><div class="meter"><i class="bad" style="--f:.533"></i></div><span class="ex-val bad">53.3%</span>
+          </div>
+        </div>
+        <div class="cell">
+          <div class="cell-title">What churners said on the way out</div>
+          <ul class="dash-list">
+            <li><span><b>Competitor</b>: 841 left for a better device or offer, 45% of all exits</span></li>
+            <li><span><b>Attitude</b>: 314 cite support staff behaviour</span></li>
+            <li><span><b>Dissatisfaction</b>: 303 cite network or product quality</span></li>
+            <li><span><b>Price</b>: 211 say it simply cost too much</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bar"><span>IBM Telco Customer Churn 11.1.3, extended · 7,043 California customers · Q3 snapshot</span><span>52 columns incl. offers, CLTV, exit reasons</span></div>
+  </div>
+</section>
+
+<!-- 03 · WHY PROGRAMS FAIL -->
+<section class="slide light" data-notes="Why do retention programs keep failing? Three reasons, and each one is a trap we fell into and then fixed. One: leakage. This dataset ships with a satisfaction score and a churn score that were recorded after the outcome. Leave them in and you get a 0.998 AUC model that is useless on day one in production. Two: the riskiest customer isn't always the one to call. When we replay the business-as-usual approach, which sends the standard offer to the highest-risk customers, it loses 11.5 thousand dollars on a 15 thousand dollar budget, because many of them leave anyway or would have stayed regardless. Three: timing. A yes-or-no prediction can't tell you how long a customer has left, so you can't value them or prioritise them.">
+  <div class="grid-frame">
+    <div class="chrome-bar"><span class="chrome-label label">Why retention programs fail</span><span class="counter-slot label"></span></div>
+    <div class="body-area">
+      <h2 class="dense reveal" data-d="1" style="max-width:1500px;">Three traps between a good model and a retention program that pays for itself</h2>
+      <div class="h-tracker reveal" data-d="2"><div class="h-line"></div><div class="h-dot" style="left:16.6%"></div><div class="h-dot" style="left:50%"></div><div class="h-dot" style="left:83.3%"></div></div>
+      <div class="split3 reveal" data-d="3">
+        <div>
+          <span class="numeral">01</span>
+          <h3 class="h3" style="margin-top:10px;">Models that cheat</h3>
+          <p class="body sm" style="margin-top:12px;">Satisfaction and churn scores are written after the customer leaves. Train on them and the model looks perfect in the notebook, then fails in production.</p>
+          <div style="margin-top:22px;"><div class="stat-value xs">0.998 AUC</div><div class="stat-label" style="font-size:17px;">what a leaky model reports on this data</div></div>
+          <div class="tag" style="margin-top:18px;">Fixed → leakage audit, 6 columns removed</div>
+        </div>
+        <div>
+          <span class="numeral">02</span>
+          <h3 class="h3" style="margin-top:10px;">Risk is not persuadability</h3>
+          <p class="body sm" style="margin-top:12px;">The highest-risk customers often leave whatever you offer, and many others would have stayed anyway. Ranking by risk wastes the budget.</p>
+          <div style="margin-top:22px;"><div class="stat-value xs bad">−$11.5k</div><div class="stat-label" style="font-size:17px;">business-as-usual result on a $15k budget</div></div>
+          <div class="tag" style="margin-top:18px;">Fixed → causal uplift targeting</div>
+        </div>
+        <div>
+          <span class="numeral">03</span>
+          <h3 class="h3" style="margin-top:10px;">No sense of time</h3>
+          <p class="body sm" style="margin-top:12px;">A yes-or-no score can't say how many months a customer has left, so it can't put a dollar value on saving them or tell you who to call first.</p>
+          <div style="margin-top:22px;"><div class="stat-value xs">0.83 c-index</div><div class="stat-label" style="font-size:17px;">survival model on held-out customers</div></div>
+          <div class="tag" style="margin-top:18px;">Fixed → survival model + lifetime value</div>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bar"><span>Each figure is measured on a locked 20% holdout the models never saw</span><span></span></div>
+  </div>
+</section>
+
+<!-- 04 · ARCHITECTURE -->
+<section class="slide dark" data-notes="This is Lighthouse end to end. Raw customer data comes in at the top. It passes a leakage audit, then a benchmark of five model families plus a stacked ensemble that we calibrate so a 30 percent score really means 30 in 100 leave. From there, three engines run side by side: who will leave, when they will leave and what they are worth, and which offer actually changes their mind. Those three feed a budget optimizer and a playbook, and everything is served through a FastAPI backend to a Next.js analyst workspace, with a Gemini copilot that answers questions by calling the same API. It never makes up a number.">
+  <div class="chromeless" style="justify-content:flex-start;">
+    <p class="kicker reveal" data-d="1">How Lighthouse works</p>
+    <h1 class="h1 reveal" data-d="2" style="margin-top:12px; font-size:80px;">One pipeline from raw data to a <em>call list</em></h1>
+    <div class="reveal" data-d="3" style="display:grid; grid-template-columns: 1fr 520px; gap:60px; margin-top:34px; align-items:start;">
+      <div class="arch">
+        <div class="arch-io">Customer data → 52 columns: demographics, services, billing, offers, exit reasons</div>
+        <div class="arch-gap">↓</div>
+        <div class="arch-row">
+          <div class="arch-box" style="--i:0"><div class="num">01 · TRUST THE DATA</div><div class="nm">Leakage audit &amp; feature engineering</div><div class="tech">single-feature AUC screen · 10 engineered features · gender held out for fairness</div></div>
+          <div class="arch-box" style="--i:1"><div class="num">02 · WHO LEAVES</div><div class="nm">6-model benchmark → calibrated stack</div><div class="tech">LR · RF · XGBoost · LightGBM · CatBoost · stacked + isotonic · conformal sets</div></div>
+        </div>
+        <div class="arch-gap">↓ three engines in parallel ↓</div>
+        <div class="arch-row">
+          <div class="arch-box" style="--i:2"><div class="num">03 · WHY</div><div class="nm">SHAP drivers</div><div class="tech">top-5 reasons per customer</div></div>
+          <div class="arch-box" style="--i:3"><div class="num">04 · WHEN &amp; WORTH</div><div class="nm">Survival + CLV</div><div class="tech">Cox PH, left-truncated · 60-month CLV</div></div>
+          <div class="arch-box" style="--i:4"><div class="num">05 · WHAT WORKS</div><div class="nm">Causal uplift</div><div class="tech">doubly-robust, within offer tiers</div></div>
+        </div>
+        <div class="arch-gap">↓ all three feed ↓</div>
+        <div class="arch-row">
+          <div class="arch-box" style="--i:5"><div class="num">06 · DECIDE</div><div class="nm">Budget optimizer &amp; retention playbook</div><div class="tech">uplift × CLV − cost ranking · 7 driver-based plays · A/B sizing</div></div>
+          <div class="arch-box ai" style="--i:6"><div class="num">07 · ASK</div><div class="nm">Gemini copilot, grounded by tools</div><div class="tech">6 function tools over the API · emails · exec brief</div></div>
+        </div>
+        <div class="arch-gap">↓</div>
+        <div class="arch-io">FastAPI (17 endpoints) → Next.js analyst workspace · 8 pages · drift monitoring · batch CSV scoring</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div class="stat-card"><div class="stat-value sm" data-countup="0.923" data-decimals="3">0</div><div class="stat-label">holdout AUC, calibrated stack</div></div>
+        <div class="stat-card"><div class="stat-value sm" data-countup="1.4" data-decimals="1" data-suffix="%">0</div><div class="stat-label">calibration error: scores mean what they say</div></div>
+        <div class="stat-card"><div class="stat-value sm" data-prefix="+$" data-countup="55.5" data-decimals="1" data-suffix="k">0</div><div class="stat-label">net value on a $15k campaign, 3.7× ROI</div></div>
+        <div class="stat-card"><div class="stat-value sm" data-countup="28">0</div><div class="stat-label">automated tests across ML and API</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 · LEAKAGE TRAP -->
+<section class="slide dark" data-notes="Before we trained anything, we tested every column on its own. Three columns predict churn perfectly because they are churn: the churn category, churn reason and customer status. Two more, the satisfaction score and the vendor's churn score, are recorded after the fact and reach 0.94 to 0.95 AUC on their own. Train on them and you get 0.998. That number is a lie. We removed all six, including the vendor CLTV, and our honest model reaches 0.923 on customers it has never seen. We also took gender out of the model: it adds 0.001 AUC, which isn't worth the fairness risk. We kept it only to audit the model.">
+  <div class="grid-frame">
+    <div class="chrome-bar"><span class="chrome-label label">Step 01 · Trust the data</span><span class="counter-slot label"></span></div>
+    <div class="body-area">
+      <h2 class="dense reveal" data-d="1">A 0.998 model is a red flag. We found out <em>why</em> before we trained.</h2>
+      <div class="cols-2 reveal" data-d="2" style="grid-template-columns: 1.05fr 1fr; margin-top:10px;">
+        <div class="terminal">
+          <div class="terminal-bar"><span class="t-dot r"></span><span class="t-dot y"></span><span class="t-dot g"></span><span class="t-title">leakage_audit — single-feature AUC</span></div>
+<pre class="terminal-body"><span class="tk-muted">$ python -m ml.retention.pipeline --audit</span>
+<span class="tk-key">churn_reason      </span> <span class="tk-num">1.000</span>  <span class="tk-bad">LEAK  written after exit</span>
+<span class="tk-key">churn_category    </span> <span class="tk-num">1.000</span>  <span class="tk-bad">LEAK  written after exit</span>
+<span class="tk-key">customer_status   </span> <span class="tk-num">1.000</span>  <span class="tk-bad">LEAK  is the label</span>
+<span class="tk-key">satisfaction_score</span> <span class="tk-num">0.950</span>  <span class="tk-bad">LEAK  post-outcome survey</span>
+<span class="tk-key">churn_score       </span> <span class="tk-num">0.943</span>  <span class="tk-bad">LEAK  vendor's own model</span>
+<span class="tk-key">cltv              </span> <span class="tk-num">0.581</span>  <span class="tk-str">DROP  vendor estimate</span>
+
+<span class="tk-muted">model with leaks   </span> AUC <span class="tk-bad">0.998</span>
+<span class="tk-muted">model without leaks</span> AUC <span class="tk-good">0.923</span>  <span class="tk-muted">holdout</span><span class="cursor"></span></pre>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:22px;">
+          <div class="stat-row">
+            <div class="stat-card"><div class="stat-value sm bad" data-countup="0.998" data-decimals="3">0</div><div class="stat-label">leaky AUC: looks great, fails on day one</div></div>
+            <div class="stat-card"><div class="stat-value sm" data-countup="0.923" data-decimals="3">0</div><div class="stat-label">honest AUC on unseen customers</div></div>
+          </div>
+          <div class="cell">
+            <div class="cell-title">Also held out on purpose</div>
+            <ul class="dash-list">
+              <li><span><b>Gender</b> is out of the model. It adds just 0.001 AUC (0.9217 vs 0.9204), so it stays only for the fairness audit.</span></li>
+              <li><span><b>10 engineered signals</b>: charge drift, refund ratio, services held, revenue per service, contract months, new-customer flag.</span></li>
+              <li><span><b>Class weighting</b> instead of SMOTE, so probabilities stay calibrated.</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bar"><span>Audit runs on every pipeline build · a regression test fails if a leaky column re-enters</span><span></span></div>
+  </div>
+</section>
+
+<!-- 06 · MODEL BENCHMARK -->
+<section class="slide light" data-notes="We didn't trust one model. We benchmarked five families with five-fold stratified cross-validation, then stacked them with a logistic meta-learner trained on out-of-fold predictions, and calibrated the result. Paired bootstrap tests show the stack significantly beats logistic regression and random forest. It is level with the best boosters, so we picked it for stability, not for a headline. On the locked holdout: 0.923 AUC, 0.80 PR-AUC, a calibration error of 1.4 percent, and 3.4 times lift in the top decile. On top of that, conformal prediction gives every customer a guaranteed-coverage label. When the model isn't sure, it says so: about a quarter of customers are flagged Uncertain instead of getting a false confident score.">
+  <div class="grid-frame">
+    <div class="chrome-bar"><span class="chrome-label label">Step 02 · Who will leave</span><span class="counter-slot label"></span></div>
+    <div class="body-area">
+      <h2 class="dense reveal" data-d="1">Six models compete. The winner has to be <em>calibrated</em>, not just accurate.</h2>
+      <div class="cols-2 reveal" data-d="2" style="grid-template-columns: 1.1fr 1fr; align-items:start;">
+        <div class="cell">
+          <div class="cell-title">5-fold cross-validated AUC (mean)</div>
+          <div class="chart-box"><canvas data-chart="hbar" data-theme="light" width="860" height="360"
+            data-labels='["Stacked ensemble","XGBoost","CatBoost","LightGBM","Logistic regression","Random forest"]'
+            data-values='[0.9097,0.9081,0.9079,0.9041,0.8988,0.8979]' data-min="0.88" data-max="0.915" data-decimals="3" data-highlight="0"></canvas></div>
+          <p class="caption">Paired bootstrap: the stack beats LR and RF (95% CI excludes 0) and matches the boosters. ±0.008 across folds.</p>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <div class="stat-row">
+            <div class="stat-card"><div class="stat-value sm" data-countup="0.923" data-decimals="3">0</div><div class="stat-label">holdout ROC-AUC</div></div>
+            <div class="stat-card"><div class="stat-value sm" data-countup="0.798" data-decimals="3">0</div><div class="stat-label">holdout PR-AUC</div></div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-card"><div class="stat-value sm" data-countup="1.4" data-decimals="1" data-suffix="%">0</div><div class="stat-label">expected calibration error</div></div>
+            <div class="stat-card"><div class="stat-value sm" data-countup="3.36" data-decimals="2" data-suffix="×">0</div><div class="stat-label">lift in the top risk decile</div></div>
+          </div>
+          <div class="cell hero">
+            <div class="cell-title">Conformal prediction · it knows when it doesn't know</div>
+            <div class="exhibit-row"><span class="ex-key">Target coverage</span><span class="ex-val">90%</span></div>
+            <div class="exhibit-row"><span class="ex-key">Achieved on holdout</span><span class="ex-val flag">93.1%</span></div>
+            <div class="exhibit-row"><span class="ex-key">Customers flagged "Uncertain"</span><span class="ex-val">24%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bar"><span>Scores shown in the app are out-of-fold or holdout, never in-sample</span><span></span></div>
+  </div>
+</section>
+
+<!-- 07 · SURVIVAL -->
+<section class="slide dark" data-notes="Knowing who will leave isn't enough. We need to know when, so we can put a dollar value on the save. We fit a Cox survival model, but this dataset is one quarter's snapshot, so everyone in it had already survived to their current tenure. Without correcting for that, our first model said a customer had 87 percent risk this quarter and 52 months left, which can't both be true. We fixed it with left truncation and a custom baseline hazard, because the standard library ignores the entry time. Now the survival model, built completely separately, predicts this quarter's churn with 0.90 AUC and agrees with the classifier at 0.95 rank correlation. That gives us a lifetime value for every customer, and value at risk is risk times that value.">
+  <div class="grid-frame">
+    <div class="chrome-bar"><span class="chrome-label label">Step 04 · When they leave, and what they're worth</span><span class="counter-slot label"></span></div>
+    <div class="body-area">
+      <h2 class="dense reveal" data-d="1">A snapshot hides time. We put it back with <em>survival analysis.</em></h2>
+      <div class="cols-3 reveal" data-d="2" style="grid-template-columns: 1fr 1fr 1fr;">
+        <div class="cell">
+          <div class="cell-title" style="color:var(--bad);">Before the fix</div>
+          <div class="exhibit-row"><span class="ex-key">Risk this quarter</span><span class="ex-val">87%</span></div>
+          <div class="exhibit-row"><span class="ex-key">Months left</span><span class="ex-val bad">52</span></div>
+          <div class="exhibit-row"><span class="ex-key">Verdict</span><span class="ex-val bad">contradiction</span></div>
+          <p class="body sm">Everyone in a quarterly snapshot has already survived to their tenure. Ignoring that makes customers look immortal.</p>
+        </div>
+        <div class="cell hero">
+          <div class="cell-title">The correction</div>
+          <ul class="dash-list">
+            <li><span><b>Left truncation</b>: each customer enters the risk set at tenure − 3 months</span></li>
+            <li><span><b>Custom Breslow baseline</b>, because lifelines ignores entry time in its baseline</span></li>
+            <li><span><b>Conditional survival</b>: P(still here in k months | here today)</span></li>
+            <li><span><b>CLV</b> = margin × survival-weighted revenue, 60 months, 10% discount</span></li>
+          </ul>
+        </div>
+        <div class="cell">
+          <div class="cell-title" style="color:var(--good);">After the fix</div>
+          <div class="exhibit-row"><span class="ex-key">c-index, holdout</span><span class="ex-val good">0.830</span></div>
+          <div class="exhibit-row"><span class="ex-key">Quarter-churn AUC</span><span class="ex-val good">0.897</span></div>
+          <div class="exhibit-row"><span class="ex-key">Agrees with classifier</span><span class="ex-val good">ρ 0.95</span></div>
+          <div class="exhibit-row"><span class="ex-key">Implied vs actual churn</span><span class="ex-val">20.8% / 26.5%</span></div>
+        </div>
+      </div>
+      <p class="lead reveal" data-d="3" style="max-width:1500px;">Two independent models, one yes-or-no and one survival, now agree. That's what lets us price every save: <em>value at risk = risk × lifetime value if retained.</em></p>
+    </div>
+    <div class="foot-bar"><span>Cox proportional hazards · delayed entry · 60% margin · 10% annual discount · 60-month horizon</span><span></span></div>
+  </div>
+</section>
+
+<!-- 08 · CAUSAL UPLIFT -->
+<section class="slide light" data-notes="This is the most important slide. The data records which retention offer each customer got, from A to E. A naive comparison says Offer A cuts churn by 20 points. It's a mirage. Offers are handed out by tenure: Offer A only goes to customers past 66 months, who almost never leave anyway. Once we compare like with like, inside each tenure window, with a doubly-robust estimator that adjusts for who got the offer, the 20-point effect disappears. Offer A actually trends slightly harmful, at plus 1.6 points. Offer E, the one every new customer receives, also trends harmful. No offer works on average. Every confidence interval crosses zero. So the value doesn't come from the offer. It comes from choosing the right people for each offer, and from testing it, which is why Lighthouse sizes an A/B test for every campaign.">
+  <div class="grid-frame">
+    <div class="chrome-bar"><span class="chrome-label label">Step 05 · What actually works</span><span class="counter-slot label"></span></div>
+    <div class="body-area">
+      <h2 class="dense reveal" data-d="1">Offer A "cuts churn by 20 points." Compared fairly, the effect <em>disappears.</em></h2>
+      <div class="cols-2 reveal" data-d="2" style="grid-template-columns: 1.25fr 1fr; align-items:start;">
+        <div class="cell">
+          <div class="cell-title">Effect on churn, percentage points (negative = fewer customers leave)</div>
+          <div class="chart-box"><canvas data-chart="grouped" data-theme="light" width="940" height="430"
+            data-labels='["Offer A\n66–72 mo","Offer B\n40–65 mo","Offer C\n24–39 mo","Offer D\n10–23 mo","Offer E\n1–10 mo"]'
+            data-series='[{"label":"Naive comparison","values":[-20.4,-14.9,-4.2,-0.4,25.8],"color":"#A9B3C2"},{"label":"Lighthouse causal estimate (doubly robust, within tier)","values":[1.6,-2.3,-0.4,-2.8,2.6],"color":"#A86A0C"}]'
+            data-min="-25" data-max="30" data-suffix=" pts"></canvas></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <div class="stat-row">
+            <div class="stat-card"><div class="stat-value sm muted">−20.4</div><div class="stat-label">naive Offer A effect, in points</div></div>
+            <div class="stat-card"><div class="stat-value sm bad">+1.6</div><div class="stat-label">causal Offer A effect, in points</div></div>
+          </div>
+          <div class="cell">
+            <div class="cell-title">Why the naive number lies</div>
+            <ul class="dash-list">
+              <li><span>Offers are <b>tenure-gated</b>. A only reaches 66+ month customers, who rarely leave anyway.</span></li>
+              <li><span>Lighthouse compares receivers with non-receivers <b>inside each window</b>, cross-fitted, with propensity weighting.</span></li>
+              <li><span>Every 95% interval crosses zero: <b>no offer works on average.</b> The value is in who receives it.</span></li>
+            </ul>
+          </div>
+          <div class="tag">Every campaign ships with an A/B test size</div>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bar"><span>Cross-fitted doubly-robust learner · logistic propensity clipped to [0.05, 0.95] · LightGBM CATE per customer</span><span></span></div>
+  </div>
+</section>
+
+<!-- 09 · CAMPAIGN -->
+<section class="slide dark" data-notes="Here is what that's worth in money. Give each strategy the same 15 thousand dollar budget. Random outreach loses 15.4 thousand. Business as usual, the standard tier offer to the riskiest customers, loses 11.5 thousand. Both spend money on people who leave anyway or would have stayed. Lighthouse ranks every customer by the churn their offer is expected to prevent, times their lifetime value, minus its cost, and spends the budget top-down. The result is 55.5 thousand dollars of net value, a 3.7 times return. The curve shows this holds at every budget: Lighthouse levels off near 78 thousand, when there is nobody left worth saving, while the other two keep losing money the more you spend.">
+  <div class="grid-frame">
+    <div class="chrome-bar"><span class="chrome-label label">Step 06 · Spend the budget where it changes outcomes</span><span class="counter-slot label"></span></div>
+    <div class="body-area">
+      <h2 class="dense reveal" data-d="1">Same $15,000. One strategy makes money. The other two <em>lose it.</em></h2>
+      <div class="cols-2 reveal" data-d="2" style="grid-template-columns: 1fr 1.25fr; align-items:start;">
+        <div style="display:flex; flex-direction:column; gap:18px;">
+          <div class="cell hero">
+            <div class="cell-title">Lighthouse uplift targeting</div>
+            <div class="stat-value" data-prefix="+$" data-countup="55.5" data-decimals="1" data-suffix="k">0</div>
+            <div class="stat-label">net value · 3.7× ROI · 400 customers, offers chosen per person</div>
+          </div>
+          <div class="cell">
+            <div class="cell-title" style="color:var(--muted-dark);">Business as usual: tier offer to highest risk</div>
+            <div class="stat-value sm bad" data-prefix="−$" data-countup="11.5" data-decimals="1" data-suffix="k">0</div>
+          </div>
+          <div class="cell">
+            <div class="cell-title" style="color:var(--muted-dark);">Random outreach</div>
+            <div class="stat-value sm bad" data-prefix="−$" data-countup="15.4" data-decimals="1" data-suffix="k">0</div>
+          </div>
+        </div>
+        <div class="cell">
+          <div class="cell-title">Net value by budget ($k)</div>
+          <div class="chart-box"><canvas data-chart="line" data-theme="dark" width="960" height="470"
+            data-labels='["$0","$6.7k","$13k","$20k","$27k","$33k","$40k","$47k","$53k","$60k"]'
+            data-series='[{"label":"Lighthouse","values":[0,36.5,52.6,62.8,69.5,74.3,77.0,77.9,77.9,77.9],"color":"#F6B54A"},{"label":"Business as usual","values":[0,-5.8,-10.5,-13.9,-18.8,-23.4,-31.0,-37.3,-43.1,-48.0],"color":"#F07A6A"},{"label":"Random","values":[0,-6.3,-14.8,-20.5,-27.1,-34.4,-42.3,-47.4,-55.1,-60.8],"color":"#56637C"}]'
+            data-suffix="k"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bar"><span>Greedy ranking by (−uplift × CLV if retained − offer cost) · offer costs A $60 · B $45 · C $35 · D $25 · E $15</span><span></span></div>
+  </div>
+</section>
+
+<!-- 10 · SEGMENTS & PLAYBOOK -->
+<section class="slide light" data-notes="Every customer lands in one of four priorities. Save now: high risk and high value, 699 customers. Low-cost save: at risk but lower value, so they get a cheap digital touch. Grow: safe and valuable, so you upsell them. Maintain: leave them alone. Then each at-risk customer gets a play, chosen from their own SHAP drivers instead of a generic segment. For most, the lever is contract lock-in. A big second group have never made a referral, so they get a community and referral play. New customers get onboarding. Every play comes with an owner channel, actions and a KPI. One more finding we chose to share: we tried to predict the exit reason itself, and the model was no better than always guessing Competitor. So we built the plays on drivers, and we recommend a short pulse survey to capture reasons earlier.">
+  <div class="grid-frame">
+    <div class="chrome-bar"><span class="chrome-label label">Segments &amp; retention playbook</span><span class="counter-slot label"></span></div>
+    <div class="body-area">
+      <h2 class="dense reveal" data-d="1">Four priorities, seven plays, and <em>one reason</em> on every customer card</h2>
+      <div class="reveal" data-d="2" style="display:grid; grid-template-columns: 560px 1fr; gap:var(--gap-lg); align-items:start;">
+        <div class="cell">
+          <div class="cell-title">5,174 active customers by priority</div>
+          <div style="display:flex; align-items:center; gap:24px;">
+            <div class="chart-box"><canvas data-chart="donut" width="230" height="230" data-values='[699,1085,2434,956]' data-colors='["#C0473A","#A86A0C","#1F7FB3","#8A94A6"]'></canvas></div>
+            <div style="display:flex; flex-direction:column; gap:12px; font-size:19px;">
+              <div><span class="ex-val" style="color:#C0473A;">699</span> <b>Save now</b><div class="caption">high risk, high value: call</div></div>
+              <div><span class="ex-val flag">1,085</span> <b>Low-cost save</b><div class="caption">at risk, lower value: digital</div></div>
+              <div><span class="ex-val" style="color:#1F7FB3;">2,434</span> <b>Grow</b><div class="caption">safe and valuable: upsell</div></div>
+              <div><span class="ex-val" style="color:var(--hint-light);">956</span> <b>Maintain</b><div class="caption">no action needed</div></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div class="cell-title">Plays assigned to at-risk customers, from their SHAP drivers</div>
+          <div style="display:grid; grid-template-columns: 290px 1fr 70px; gap:14px 18px; align-items:center;">
+            <span class="ex-key">Contract lock-in</span><div class="meter"><i style="--f:1"></i></div><span class="ex-val">1,227</span>
+            <span class="ex-key">Community &amp; referral</span><div class="meter"><i style="--f:.362"></i></div><span class="ex-val">444</span>
+            <span class="ex-key">Early-life onboarding</span><div class="meter"><i style="--f:.045"></i></div><span class="ex-val">55</span>
+            <span class="ex-key">Value reframe</span><div class="meter"><i style="--f:.031"></i></div><span class="ex-val">38</span>
+            <span class="ex-key">Lifecycle care</span><div class="meter"><i style="--f:.016"></i></div><span class="ex-val">20</span>
+          </div>
+          <div class="cols-2" style="margin-top:10px; gap:20px;">
+            <div class="cell" style="padding:18px 22px;">
+              <div class="cell-title">Top churn drivers</div>
+              <p class="body sm">Contract length · referrals made · dependents · tenure · monthly bill · age</p>
+            </div>
+            <div class="cell" style="padding:18px 22px;">
+              <div class="cell-title">Finding we chose to share</div>
+              <p class="body sm">Exit reason can't be predicted from the profile: 44% vs 45% for always guessing "Competitor". Plays use drivers, plus a month-3 pulse survey.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bar"><span>Priority = calibrated risk vs profit-optimal threshold (0.163) × CLV vs median</span><span>Plays: contract · onboarding · value · service · referral · payment · lifecycle</span></div>
+  </div>
+</section>
+
+<!-- 11 · PRODUCT + AI -->
+<section class="slide dark" data-notes="All of this is a working product, not a notebook. An analyst opens the Command Center and sees value at risk, the priority mix and a map of California. Each customer profile shows their risk gauge, months left, lifetime value, SHAP drivers, the recommended play and a what-if simulator: switch them to a two-year contract and watch the risk drop. The campaign planner runs the budget optimizer live. And the copilot is Gemini with function calling. When you ask it a question, it calls Lighthouse's own API and shows you which tools it used. It can't invent a number. It also writes the retention email for any customer and a one-page executive brief.">
+  <div class="grid-frame">
+    <div class="chrome-bar"><span class="chrome-label label">The product</span><span class="counter-slot label"></span></div>
+    <div class="body-area">
+      <h2 class="dense reveal" data-d="1">An analyst workspace, with an AI copilot that <em>shows its working</em></h2>
+      <div class="cols-2 reveal" data-d="2" style="grid-template-columns: 1fr 1.05fr; align-items:start;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+          <div class="cell" style="padding:20px 22px;"><div class="cell-title">Command Center</div><p class="body sm">KPIs, risk mix, California value-at-risk map, today's call list</p></div>
+          <div class="cell" style="padding:20px 22px;"><div class="cell-title">Customer 360</div><p class="body sm">Risk gauge, months left, CLV, SHAP drivers, recommended play</p></div>
+          <div class="cell" style="padding:20px 22px;"><div class="cell-title">What-if simulator</div><p class="body sm">Change the contract or bill and watch the risk move, live</p></div>
+          <div class="cell" style="padding:20px 22px;"><div class="cell-title">Campaign planner</div><p class="body sm">Budget slider, 3-way comparison, A/B sizing, CRM export</p></div>
+          <div class="cell" style="padding:20px 22px;"><div class="cell-title">Model Lab</div><p class="body sm">Leaderboard, calibration, survival, fairness audit</p></div>
+          <div class="cell" style="padding:20px 22px;"><div class="cell-title">Monitoring</div><p class="body sm">PSI drift per feature, drag-and-drop batch CSV scoring</p></div>
+        </div>
+        <div class="terminal">
+          <div class="terminal-bar"><span class="t-dot r"></span><span class="t-dot y"></span><span class="t-dot g"></span><span class="t-title">Lighthouse Copilot · gemini-2.5-flash</span></div>
+<pre class="terminal-body" style="white-space:pre-wrap; font-size:17.5px;"><span class="tk-str">you ›</span> Which offers reduce churn and which make it worse?
+
+<span class="tk-muted">⚙ tool call  get_offer_evidence()</span>
+
+<span class="tk-key">copilot ›</span> Offers <span class="tk-good">B, C and D</span> are associated with lower
+churn. Offers <span class="tk-bad">A and E</span> are associated with higher churn.
+None is statistically significant, so I'd run an A/B
+test before changing who receives them.
+
+<span class="tk-str">you ›</span> Generate this month's executive brief.
+
+<span class="tk-muted">⚙ get_portfolio_summary · plan_campaign(15000)
+⚙ get_offer_evidence · get_model_quality</span>
+<span class="tk-key">copilot ›</span> Headline: uplift targeting turns $15k into
+<span class="tk-num">+$55.5k</span> of retained value (3.7× ROI)…<span class="cursor"></span></pre>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bar"><span>Next.js 15 · Tailwind · Recharts → FastAPI → scikit-learn · XGBoost · LightGBM · CatBoost · lifelines · SHAP · Gemini</span><span></span></div>
+  </div>
+</section>
+
+<!-- 12 · TRUST -->
+<section class="slide light" data-notes="Real companies will only use this if they can trust it, so we built the checks in. Fairness: we audit true positive rates by gender, senior status and age. The model catches more female and senior churners than male and non-senior ones. Seniors genuinely churn more, but the gap is something a business should see, so it's reported on the Model Lab page instead of hidden. Drift: every feature has a population stability index against training, and an uploaded batch gets a drift verdict before it's scored. Engineering: 28 automated tests, a pinned environment, one command to rebuild every artifact, and the AI layer is read-only. It can call analytics. It can't change a score.">
+  <div class="grid-frame">
+    <div class="chrome-bar"><span class="chrome-label label">Built to be trusted</span><span class="counter-slot label"></span></div>
+    <div class="body-area">
+      <h2 class="dense reveal" data-d="1">Fair, monitored, tested, and <em>honest</em> about its limits</h2>
+      <div class="cols-3 reveal" data-d="2">
+        <div class="cell">
+          <div class="cell-title">Fairness audit · recall by group</div>
+          <div class="chart-box"><canvas data-chart="hbar" data-theme="light" width="480" height="300"
+            data-labels='["Female","Male","Senior","Non-senior","Under 30","30 and over"]'
+            data-values='[0.770,0.626,0.934,0.622,0.648,0.706]' data-min="0" data-max="1" data-pct="1"
+            data-colors='["#A86A0C","#A86A0C","#1F7FB3","#1F7FB3","#6B7A90","#6B7A90"]'></canvas></div>
+          <p class="caption">Gaps are reported in the product, not hidden. Gender is never a model input.</p>
+        </div>
+        <div class="cell">
+          <div class="cell-title">Drift monitoring</div>
+          <div class="exhibit-row"><span class="ex-key">Max feature PSI</span><span class="ex-val good">0.015</span></div>
+          <div class="exhibit-row"><span class="ex-key">Watch threshold</span><span class="ex-val">0.10</span></div>
+          <div class="exhibit-row"><span class="ex-key">Retrain threshold</span><span class="ex-val">0.25</span></div>
+          <div class="exhibit-row"><span class="ex-key">Batch upload</span><span class="ex-val flag">drift check first</span></div>
+          <p class="body sm">Every scored CSV gets a stable / watch / drift verdict before anyone acts on it.</p>
+        </div>
+        <div class="cell">
+          <div class="cell-title">Engineering</div>
+          <div class="exhibit-row"><span class="ex-key">Automated tests</span><span class="ex-val good">28 / 28</span></div>
+          <div class="exhibit-row"><span class="ex-key">Full rebuild</span><span class="ex-val">~55 s, 1 command</span></div>
+          <div class="exhibit-row"><span class="ex-key">Holdout</span><span class="ex-val">20%, locked</span></div>
+          <div class="exhibit-row"><span class="ex-key">AI permissions</span><span class="ex-val flag">read-only tools</span></div>
+          <p class="body sm">The copilot reads analytics through the API. It can't change a score.</p>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bar"><span>Recall = share of actual churners the model flags · holdout, n = 1,409</span><span></span></div>
+  </div>
+</section>
+
+<!-- 13 · DEPLOYMENT -->
+<section class="slide dark" data-notes="How would a company actually adopt this? Phase one: connect it to the nightly CRM export. The scoring API accepts the same CSV shape and checks for drift before it scores, and the call list goes straight to the retention team. Phase two: run the A/B test the planner sizes, so the offer effects move from observational to proven, then feed the results back into the uplift model. Phase three: put the model in the CRM itself, with triggers. When a customer's risk crosses the threshold, the right play fires automatically. Nothing here is tied to telecom. Any subscription business with tenure, billing and offers can plug in: streaming, SaaS, insurance, banking.">
+  <div class="grid-frame">
+    <div class="chrome-bar"><span class="chrome-label label">From pitch to production</span><span class="counter-slot label"></span></div>
+    <div class="body-area">
+      <h2 class="dense reveal" data-d="1">Plugs into any subscription business in <em>three phases</em></h2>
+      <div class="h-tracker reveal" data-d="2"><div class="h-line"></div><div class="h-dot" style="left:16.6%"></div><div class="h-dot" style="left:50%"></div><div class="h-dot" style="left:83.3%"></div></div>
+      <div class="split3 reveal" data-d="3">
+        <div>
+          <span class="numeral">PHASE 1 · WEEKS 1–2</span>
+          <h3 class="h3" style="margin-top:10px;">Score the nightly export</h3>
+          <ul class="dash-list" style="margin-top:14px;">
+            <li><span>POST the CRM CSV to <b>/api/score</b></span></li>
+            <li><span>Drift check before scoring</span></li>
+            <li><span>Call list and plays exported to the retention team</span></li>
+          </ul>
+        </div>
+        <div>
+          <span class="numeral">PHASE 2 · MONTH 1–2</span>
+          <h3 class="h3" style="margin-top:10px;">Prove the offers</h3>
+          <ul class="dash-list" style="margin-top:14px;">
+            <li><span>Run the A/B test the planner sizes</span></li>
+            <li><span>Turn observational effects into measured ones</span></li>
+            <li><span>Retrain uplift on the experiment data</span></li>
+          </ul>
+        </div>
+        <div>
+          <span class="numeral">PHASE 3 · QUARTER 2</span>
+          <h3 class="h3" style="margin-top:10px;">Close the loop in the CRM</h3>
+          <ul class="dash-list" style="margin-top:14px;">
+            <li><span>Risk-threshold triggers fire the right play</span></li>
+            <li><span>Copilot briefs for account managers</span></li>
+            <li><span>Monthly PSI review, retrain on drift</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="tag sky reveal" data-d="4" style="margin-top:20px;">Works for telecom, streaming, SaaS, insurance and banking: anything with tenure, billing and offers</div>
+    </div>
+    <div class="foot-bar"><span>Containerised FastAPI + Next.js · model artifacts rebuilt by one pipeline command</span><span></span></div>
+  </div>
+</section>
+
+<!-- 14 · CLOSE -->
+<section class="slide dark" data-notes="To close. Most churn projects stop at a high AUC. We went further, because a high AUC is where the hard questions start. We removed the leaks that make models look perfect, calibrated the scores so they mean what they say, gave every customer a timeline and a dollar value, and tested whether our offers actually work. The answer was that the standard ones don't work on average, and that targeting turns a money-losing campaign into a 3.7 times return. Lighthouse doesn't stop customers from leaving. It shows you which ones you can still bring home. Thank you.">
+  <div class="lh-scene" aria-hidden="true" style="opacity:.55;">
+    <div class="lh-beam"></div><div class="lh-glow"></div>
+  </div>
+  <div class="grid-frame" style="z-index:2;">
+    <div class="chrome-bar"><span class="chrome-label label">Lighthouse</span><span class="counter-slot label"></span></div>
+    <div class="body-area">
+      <p class="quote reveal" data-d="1" style="max-width:1250px;">A lighthouse doesn't stop ships from sailing. It shows which ones you can still <em>bring home.</em></p>
+      <div class="stat-row reveal" data-d="2" style="margin-top:34px; max-width:1500px;">
+        <div class="stat-card"><div class="stat-value sm" data-countup="0.923" data-decimals="3">0</div><div class="stat-label">holdout AUC, leak-free</div></div>
+        <div class="stat-card"><div class="stat-value sm" data-countup="1.4" data-decimals="1" data-suffix="%">0</div><div class="stat-label">calibration error</div></div>
+        <div class="stat-card"><div class="stat-value sm" data-countup="0.83" data-decimals="2">0</div><div class="stat-label">survival c-index</div></div>
+        <div class="stat-card"><div class="stat-value sm" data-countup="3.7" data-decimals="1" data-suffix="×">0</div><div class="stat-label">campaign ROI vs a loss for BAU</div></div>
+        <div class="stat-card"><div class="stat-value sm">28/28</div><div class="stat-label">tests passing</div></div>
+      </div>
+      <p class="lead reveal" data-d="3" style="margin-top:20px;">Thank you. Questions welcome.</p>
+    </div>
+    <div class="foot-bar"><span>GitHub → github.com/ac265640/LightHouse</span><span>Amit Singh Chauhan · DataNova 2026</span></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="deck-controls" role="toolbar" aria-label="Slide controls">
+  <button id="prevBtn" title="Previous (←)" aria-label="Previous slide">‹</button>
+  <span class="deck-counter" id="deckCounter" aria-live="polite">1 / 14</span>
+  <button id="nextBtn" title="Next (→ or Space)" aria-label="Next slide">›</button>
+  <span class="sep opt"></span>
+  <button id="notesBtn" class="opt" title="Speaker notes (N)">Notes</button>
+  <button id="fsBtn" class="opt" title="Fullscreen (F)" aria-label="Fullscreen">⛶</button>
+</div>
+<div class="hint" id="hint">← → to navigate · N notes · F fullscreen</div>
+<div id="notesPanel"><div class="nk">Speaker notes</div><div id="notesText"></div></div>
+
+<script>
+const THEMES = {
+  dark:  { text: '#8D9BB3', grid: 'rgba(141,155,179,0.14)', strong: '#E6EAF1', accent: '#F6B54A', base: '#56637C' },
+  light: { text: '#4F5B70', grid: 'rgba(79,91,112,0.14)',  strong: '#111A2C', accent: '#A86A0C', base: '#B9C2CF' },
+};
+if (window.Chart) {
+  Chart.defaults.font.family = "'IBM Plex Mono', ui-monospace, monospace";
+  Chart.defaults.font.size = 15;
+}
+
+class Deck {
+  constructor() {
+    this.slides = Array.from(document.querySelectorAll('.slide'));
+    this.i = 0;
+    this.stage = document.getElementById('deckStage');
+    this.charts = new Map();
+    this.scale();
+    window.addEventListener('resize', () => this.scale());
+    this.paintCounters();
+    this.bind();
+    const m = /^#s(\d+)$/.exec(location.hash);
+    this.show(m ? Number(m[1]) - 1 : 0);
+    const hint = document.getElementById('hint');
+    hint.classList.add('show'); setTimeout(() => hint.classList.remove('show'), 3200);
+  }
+  scale() {
+    const f = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    const x = (window.innerWidth - 1920 * f) / 2, y = (window.innerHeight - 1080 * f) / 2;
+    this.stage.style.transform = `translate(${x}px, ${y}px) scale(${f})`;
+  }
+  paintCounters() {
+    const n = this.slides.length, pad = (v) => String(v).padStart(2, '0');
+    this.slides.forEach((s, k) => { const c = s.querySelector('.counter-slot'); if (c) c.textContent = `${pad(k + 1)} / ${pad(n)}`; });
+  }
+  show(k) {
+    this.i = Math.max(0, Math.min(k, this.slides.length - 1));
+    this.slides.forEach((s, j) => s.classList.toggle('visible', j === this.i));
+    document.getElementById('deckCounter').textContent = `${this.i + 1} / ${this.slides.length}`;
+    document.getElementById('progress').style.width = `${((this.i + 1) / this.slides.length) * 100}%`;
+    document.getElementById('notesText').textContent = this.slides[this.i].dataset.notes || '';
+    const s = this.slides[this.i];
+    this.drawCharts(s);
+    this.countUps(s);
+  }
+  next() { this.show(this.i + 1); }
+  prev() { this.show(this.i - 1); }
+
+  drawCharts(slide) {
+    if (!window.Chart) return;
+    slide.querySelectorAll('canvas[data-chart]').forEach((cv) => {
+      if (this.charts.has(cv)) this.charts.get(cv).destroy();
+      const d = cv.dataset, t = THEMES[d.theme || 'dark'];
+      const labels = d.labels ? JSON.parse(d.labels).map((l) => l.includes('\n') ? l.split('\n') : l) : [];
+      const suffix = d.suffix || '';
+      const anim = { duration: 1000, easing: 'easeOutCubic' };
+      const axis = (extra = {}) => Object.assign({ grid: { color: t.grid }, border: { color: t.grid }, ticks: { color: t.text } }, extra);
+      let cfg;
+      if (d.chart === 'hbar') {
+        const values = JSON.parse(d.values), hi = d.highlight !== undefined ? Number(d.highlight) : -1;
+        const colors = d.colors ? JSON.parse(d.colors) : values.map((_, k) => k === hi ? t.accent : t.base);
+        const fmt = (v) => d.pct ? Math.round(v * 100) + '%' : Number(v).toFixed(Number(d.decimals || 2));
+        cfg = { type: 'bar', data: { labels, datasets: [{ data: values, backgroundColor: colors, barThickness: 26 }] },
+          options: { indexAxis: 'y', responsive: false, animation: anim, layout: { padding: { right: 70 } },
+            plugins: { legend: { display: false }, tooltip: { enabled: false } },
+            scales: { x: axis({ min: Number(d.min), max: Number(d.max), ticks: { color: t.text, callback: fmt } }),
+                      y: axis({ grid: { display: false }, ticks: { color: t.strong, font: { size: 16 } } }) } },
+          plugins: [{ id: 'vals', afterDatasetsDraw: (c) => { const ctx = c.ctx; ctx.save(); ctx.fillStyle = t.strong; ctx.font = "600 16px 'IBM Plex Mono', monospace"; ctx.textBaseline = 'middle';
+            c.getDatasetMeta(0).data.forEach((b, k) => ctx.fillText(fmt(values[k]), b.x + 10, b.y)); ctx.restore(); } }] };
+      } else if (d.chart === 'grouped') {
+        const series = JSON.parse(d.series);
+        cfg = { type: 'bar', data: { labels, datasets: series.map((s) => ({ label: s.label, data: s.values, backgroundColor: s.color, barPercentage: .82, categoryPercentage: .7 })) },
+          options: { responsive: false, animation: anim,
+            plugins: { legend: { position: 'bottom', labels: { color: t.strong, boxWidth: 14, padding: 18, font: { size: 15 } } }, tooltip: { enabled: false } },
+            scales: { x: axis({ grid: { display: false }, ticks: { color: t.strong, font: { size: 15 } } }),
+                      y: axis({ min: Number(d.min), max: Number(d.max), ticks: { color: t.text, stepSize: 10, callback: (v) => (v > 0 ? '+' : '') + v } }) } },
+          plugins: [{ id: 'zero', beforeDatasetsDraw: (c) => { const y = c.scales.y.getPixelForValue(0), ctx = c.ctx; ctx.save(); ctx.strokeStyle = t.strong; ctx.lineWidth = 1.5;
+              ctx.beginPath(); ctx.moveTo(c.chartArea.left, y); ctx.lineTo(c.chartArea.right, y); ctx.stroke(); ctx.restore(); },
+            afterDatasetsDraw: (c) => { const ctx = c.ctx; ctx.save(); ctx.font = "600 14px 'IBM Plex Mono', monospace"; ctx.textAlign = 'center';
+              c.data.datasets.forEach((ds, di) => c.getDatasetMeta(di).data.forEach((b, k) => { const v = ds.data[k]; ctx.fillStyle = di === 1 ? t.accent : t.text;
+                ctx.textBaseline = v >= 0 ? 'bottom' : 'top'; ctx.fillText((v > 0 ? '+' : '') + v.toFixed(1), b.x, v >= 0 ? b.y - 4 : b.y + 4); })); ctx.restore(); } }] };
+      } else if (d.chart === 'line') {
+        const series = JSON.parse(d.series);
+        cfg = { type: 'line', data: { labels, datasets: series.map((s, k) => ({ label: s.label, data: s.values, borderColor: s.color, backgroundColor: s.color + '22',
+            borderWidth: k === 0 ? 4 : 2.5, pointRadius: (ctx) => ctx.dataIndex === s.values.length - 1 ? 6 : 0, pointBackgroundColor: s.color, tension: .35, fill: k === 0 ? 'origin' : false })) },
+          options: { responsive: false, animation: { duration: 1400, easing: 'easeOutCubic' },
+            plugins: { legend: { position: 'bottom', labels: { color: t.strong, boxWidth: 14, padding: 18, font: { size: 15 } } }, tooltip: { enabled: false } },
+            scales: { x: axis({ grid: { display: false } }), y: axis({ ticks: { color: t.text, callback: (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + '$' + Math.abs(v) + suffix } }) } },
+          plugins: [{ id: 'zero', beforeDatasetsDraw: (c) => { const y = c.scales.y.getPixelForValue(0), ctx = c.ctx; ctx.save(); ctx.strokeStyle = t.strong; ctx.globalAlpha = .5; ctx.setLineDash([6, 6]);
+            ctx.beginPath(); ctx.moveTo(c.chartArea.left, y); ctx.lineTo(c.chartArea.right, y); ctx.stroke(); ctx.restore(); } }] };
+      } else if (d.chart === 'donut') {
+        cfg = { type: 'doughnut', data: { datasets: [{ data: JSON.parse(d.values), backgroundColor: JSON.parse(d.colors), borderWidth: 0 }] },
+          options: { responsive: false, cutout: '68%', animation: { duration: 1000, easing: 'easeOutCubic' }, plugins: { legend: { display: false }, tooltip: { enabled: false } } } };
+      }
+      if (!cfg) return;
+      cv.width = Number(cv.getAttribute('width')); cv.height = Number(cv.getAttribute('height'));
+      this.charts.set(cv, new Chart(cv.getContext('2d'), cfg));
+    });
+  }
+  countUps(slide) {
+    slide.querySelectorAll('[data-countup]').forEach((el) => {
+      const target = parseFloat(el.dataset.countup), dec = parseInt(el.dataset.decimals || '0', 10);
+      const pre = el.dataset.prefix || '', suf = el.dataset.suffix || '', t0 = performance.now(), dur = 1000;
+      const step = (now) => { const p = Math.min((now - t0) / dur, 1), e = 1 - Math.pow(1 - p, 3);
+        el.textContent = pre + (target * e).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec }) + suf;
+        if (p < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    });
+  }
+  bind() {
+    document.addEventListener('keydown', (e) => {
+      if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); this.next(); }
+      else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); this.prev(); }
+      else if (e.key === 'Home') this.show(0);
+      else if (e.key === 'End') this.show(this.slides.length - 1);
+      else if (e.key === 'n' || e.key === 'N') this.toggleNotes();
+      else if (e.key === 'f' || e.key === 'F') this.fullscreen();
+    });
+    let last = 0;
+    window.addEventListener('wheel', (e) => { const now = Date.now(); if (now - last < 700 || Math.abs(e.deltaY) < 30) return; last = now; e.deltaY > 0 ? this.next() : this.prev(); }, { passive: true });
+    let sx = 0;
+    window.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
+    window.addEventListener('touchend', (e) => { const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 50) dx < 0 ? this.next() : this.prev(); }, { passive: true });
+    document.getElementById('prevBtn').onclick = () => this.prev();
+    document.getElementById('nextBtn').onclick = () => this.next();
+    document.getElementById('notesBtn').onclick = () => this.toggleNotes();
+    document.getElementById('fsBtn').onclick = () => this.fullscreen();
+  }
+  toggleNotes() { document.getElementById('notesPanel').classList.toggle('show'); }
+  fullscreen() {
+    const hint = document.getElementById('hint');
+    if (!document.fullscreenElement) {
+      const r = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+      if (r && r.catch) r.catch(() => { hint.textContent = 'Fullscreen is blocked here. Use your browser\'s fullscreen instead.'; hint.classList.add('show'); setTimeout(() => hint.classList.remove('show'), 3000); });
+    } else document.exitFullscreen().catch(() => {});
+  }
+}
+window.deck = new Deck();
+</script>
