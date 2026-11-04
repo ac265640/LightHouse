@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Data: raw files are fetched by scripts/download_data.sh
+data/raw/
+data/processed/
+
+# Large generated artifacts (rebuilt by the training pipeline)
+artifacts/*.joblib
+artifacts/*.parquet
+
+# Frontend
+node_modules/
+.next/
+out/
+frontend/.env*.local
+
+# Environment / secrets
+.env
+*.env
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Training scratch output
+catboost_info/
