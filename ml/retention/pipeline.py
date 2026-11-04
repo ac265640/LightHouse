@@ -149,14 +149,24 @@ def run() -> dict:
                           .to_dict(orient="records")),
     }
     cond = survival.conditional_survival(cph, sdf)
-    clv = survival.survival_clv(customers["monthly_charge"].values, cond)
+    charge = customers["monthly_charge"].values
+    clv_expected = survival.survival_clv(charge, cond)        # risk-weighted value
+    clv = survival.clv_if_retained(charge, cond)              # value a save protects
     remaining = survival.expected_remaining_months(cond)
     median_left = survival.months_to_churn_risk(cond)
-    report["survival"]["clv_vs_ibm_cltv_spearman"] = float(
-        pd.Series(clv).corr(customers["cltv"], method="spearman"))
-    report["survival"]["clv_vs_risk_spearman"] = float(
-        pd.Series(clv).corr(pd.Series(p_all), method="spearman"))
-    _log(f"survival c-index holdout {report['survival']['c_index_holdout']:.4f}", t0)
+    q3 = survival.churn_within(cond)
+    report["survival"].update({
+        "quarter_churn_auc_holdout": float(roc_auc_score(y_te, q3[te])),
+        "quarter_churn_mean_pred": float(q3.mean()),
+        "quarter_churn_actual": float(y.mean()),
+        "agreement_with_classifier_spearman": float(pd.Series(q3).corr(pd.Series(p_all), method="spearman")),
+        "clv_vs_ibm_cltv_spearman": float(pd.Series(clv).corr(customers["cltv"], method="spearman")),
+        "clv_vs_risk_spearman": float(pd.Series(clv).corr(pd.Series(p_all), method="spearman")),
+        "median_months_left_distribution": pd.Series(median_left).describe().to_dict(),
+        "design": "Cox PH with left truncation (delayed entry at tenure-3) and Breslow baseline",
+    })
+    _log(f"survival c-index holdout {report['survival']['c_index_holdout']:.4f}, "
+         f"quarter-churn AUC {report['survival']['quarter_churn_auc_holdout']:.4f}", t0)
 
     # ── Uplift ──
     up = uplift.fit_t_learner(X, y, customers["offer"])
@@ -192,6 +202,7 @@ def run() -> dict:
                         "clv_horizon_months": survival.HORIZON_MONTHS},
         "profit_curve": curve, "optimal": best,
         "total_clv": float(clv.sum()),
+        "total_clv_expected": float(clv_expected.sum()),
         "value_at_risk": float((p_all * clv).sum()),
         "uplift_targeting_value": float(rec["expected_net_value"].sum()),
         "uplift_customers_targeted": int((rec["best_offer"] != "No offer").sum()),
@@ -221,6 +232,7 @@ def run() -> dict:
                                  labels=["Low", "Medium", "High", "Critical"]).astype(str)
     scored["confidence"] = conf_all
     scored["clv"] = clv
+    scored["clv_expected"] = clv_expected
     scored["value_at_risk"] = p_all * clv
     scored["expected_remaining_months"] = remaining
     scored["median_months_left"] = median_left

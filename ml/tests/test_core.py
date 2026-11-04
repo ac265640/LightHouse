@@ -98,3 +98,19 @@ def test_psi_detects_shift(X):
     shifted = X.copy()
     shifted["monthly_charge"] = shifted["monthly_charge"] * 1.8
     assert insights.psi(base, shifted)["monthly_charge"] > 0.25
+
+
+def test_retained_clv_at_least_expected_clv():
+    charge = np.array([80.0])
+    s = np.linspace(0.9, 0.2, 60)[None, :]
+    assert survival.clv_if_retained(charge, s)[0] >= survival.survival_clv(charge, s)[0]
+
+
+def test_left_truncated_baseline_matches_observed_quarter_churn(customers, X):
+    """With delayed entry, implied quarterly churn should track the observed rate."""
+    sdf = survival.survival_frame(X, customers)
+    cph = survival.fit_cox(sdf)
+    q = survival.churn_within(survival.conditional_survival(cph, sdf))
+    assert abs(q.mean() - customers["churn"].mean()) < 0.10
+    new = customers["tenure_in_months"].values <= 6
+    assert q[new].mean() > q[~new].mean()

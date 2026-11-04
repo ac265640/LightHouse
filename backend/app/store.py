@@ -43,7 +43,7 @@ class Store:
         p = self.bundle["model"].predict_proba(X)[:, 1]
         sdf = survival.survival_frame(X, rows.assign(churn=0))
         cond = survival.conditional_survival(self.bundle["cox"], sdf)
-        clv = survival.survival_clv(rows["monthly_charge"].values, cond)
+        clv = survival.clv_if_retained(rows["monthly_charge"].values, cond)
         reason = self.bundle["reason_model"].predict(X)
         sv = insights.shap_values(self.bundle["model"].bases["LightGBM"], X)
         out = pd.DataFrame({
