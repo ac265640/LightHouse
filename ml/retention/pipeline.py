@@ -169,12 +169,14 @@ def run() -> dict:
          f"quarter-churn AUC {report['survival']['quarter_churn_auc_holdout']:.4f}", t0)
 
     # ── Uplift ──
-    up = uplift.fit_t_learner(X, y, customers["offer"])
+    up = uplift.fit_uplift(X, y, customers["offer"], customers["tenure_in_months"])
     rec = uplift.best_offer(up["cate"], clv)
     report["uplift"] = {"offers": up["ate"].to_dict(orient="records"),
-                        "offer_costs": uplift.OFFER_COST}
-    _log("uplift:\n" + up["ate"][["offer", "naive_effect", "ipw_effect",
-                                   "t_learner_mean_effect"]].round(4).to_string(), t0)
+                        "offer_costs": uplift.OFFER_COST,
+                        "offer_windows": uplift.OFFER_WINDOWS,
+                        "method": "Doubly-robust learner within each offer's tenure window"}
+    _log("uplift:\n" + up["ate"][["offer", "window", "naive_effect", "window_naive_effect",
+                                   "dr_effect", "dr_ci_low", "dr_ci_high", "share_cate_beneficial"]].round(4).to_string(), t0)
 
     # ── SHAP (LightGBM member of the stack) ──
     lgbm = final.bases["LightGBM"]

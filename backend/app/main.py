@@ -228,7 +228,6 @@ class CampaignRequest(BaseModel):
     budget: float = 20000.0
     offer_costs: dict[str, float] = Field(default_factory=lambda: dict(uplift.OFFER_COST))
     min_risk: float = 0.0
-    generic_offer: str = "Offer B"
 
 
 def _run_strategy(df: pd.DataFrame, order: pd.Index, offers: pd.Series,
@@ -268,7 +267,10 @@ def campaign(req: CampaignRequest):
     smart = _run_strategy(df, smart_order, rec["best_offer"], costs, req.budget)
 
     risk_order = df.sort_values("churn_probability", ascending=False).index
-    generic = pd.Series(req.generic_offer, index=df.index)
+    # Business as usual: each customer gets the offer of their tenure tier
+    generic = pd.Series(
+        [next((k for k, (lo, hi) in uplift.OFFER_WINDOWS.items() if lo <= t <= hi), "No offer")
+         for t in df["tenure_in_months"]], index=df.index)
     by_risk = _run_strategy(df, risk_order, generic, costs, req.budget)
 
     rng = np.random.default_rng(7)
@@ -283,6 +285,9 @@ def campaign(req: CampaignRequest):
         s.pop("ids")
     return _clean({
         "strategies": {"uplift_optimised": smart, "risk_ranked": by_risk, "random": random},
+        "strategy_notes": {"uplift_optimised": "Best offer per customer by expected net value (DR uplift × retained CLV − cost)",
+                           "risk_ranked": "Highest churn risk first, each given their tenure-tier offer (business as usual)",
+                           "random": "Random customers, tenure-tier offer"},
         "offer_mix": offer_mix,
         "targets": targets[["customer_id", "city", "churn_probability", "clv", "play",
                             "recommended_offer", "expected_net_value", "priority"]]
