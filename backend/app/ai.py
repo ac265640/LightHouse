@@ -112,7 +112,17 @@ def get_offer_evidence() -> dict:
     """Causal evidence for each retention offer: naive vs within-tier doubly-robust
     effect on churn with 95% CI, tenure window and cost."""
     from backend.app.store import store
-    return {"offers": store.report["uplift"]["offers"], "method": store.report["uplift"]["method"]}
+    offers = []
+    for o in store.report["uplift"]["offers"]:
+        o = dict(o)
+        eff, lo, hi = o["dr_effect"], o["dr_ci_low"], o["dr_ci_high"]
+        direction = "raises" if eff > 0 else "lowers"
+        certainty = "statistically significant" if lo > 0 or hi < 0 else "not statistically significant (CI crosses 0)"
+        o["reading"] = f"Associated with a churn change of {eff * 100:+.1f} pts: it {direction} churn; {certainty}."
+        offers.append(o)
+    return {"offers": offers, "method": store.report["uplift"]["method"],
+            "sign_convention": "dr_effect is the change in churn probability. Positive = MORE churn (harmful), "
+                               "negative = LESS churn (helpful)."}
 
 
 def get_model_quality() -> dict:
@@ -197,7 +207,10 @@ def retention_message(req: MessageRequest):
         f"Write a short, warm, personalised retention {req.channel} to this customer from their account "
         "manager. Address the specific drivers of their risk without mentioning churn, risk scores or models. "
         "Offer the recommended play's first action and, if a best offer exists, mention it as a loyalty "
-        "benefit. Include a subject line. Max 140 words. Sign off as 'Your account team'.\n\n"
+        "benefit. Include a subject line. Max 140 words. Sign off as 'Your account team'.\n"
+        "Never use the customer ID as a name (open with 'Hi there'), never leave placeholders such as "
+        "[Company Name], and never show internal offer codes like 'Offer B': describe the offer in plain "
+        "words (e.g. 'a loyalty discount on your plan').\n\n"
         f"Customer data:\n{json.dumps(profile, default=str)}"
     )
     r = _run(prompt, tools=False)
