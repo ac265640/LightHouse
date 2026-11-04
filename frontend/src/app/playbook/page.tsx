@@ -118,7 +118,7 @@ export default function PlaybookPage() {
             </div>
             <div className="rounded-lg bg-bg-2 p-3">
               <div className="num text-2xl font-semibold text-muted">{pct(data.reason_model.majority_baseline, 0)}</div>
-              <div className="text-[11px] text-muted">always guess "Competitor"</div>
+              <div className="text-[11px] text-muted">always guess &ldquo;Competitor&rdquo;</div>
             </div>
           </div>
           <p className="mt-4 text-sm leading-relaxed text-muted">{data.reason_model.verdict}</p>

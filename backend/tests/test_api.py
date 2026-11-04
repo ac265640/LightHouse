@@ -78,3 +78,25 @@ def test_batch_score_csv(client):
 def test_batch_score_rejects_missing_columns(client):
     r = client.post("/api/score", files={"file": ("x.csv", "a,b\n1,2\n", "text/csv")})
     assert r.status_code == 422
+
+
+def test_ai_status_reports_configuration(client):
+    r = client.get("/api/ai/status").json()
+    assert "configured" in r and r["model"]
+
+
+def test_ai_chat_without_key_returns_503(client, monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    r = client.post("/api/ai/chat", json={"message": "hello"})
+    assert r.status_code == 503
+
+
+def test_ai_tools_return_grounded_data():
+    from backend.app import ai
+    assert ai.get_portfolio_summary()["active_customers"] > 0
+    found = ai.search_customers(priority="Save now", limit=3)
+    assert found["total_matching"] > 0 and len(found["customers"]) == 3
+    cid = found["customers"][0]["customer_id"]
+    assert ai.get_customer(cid)["customer_id"] == cid
+    assert "uplift_optimised" in ai.plan_campaign(10000)["strategies"]
+    assert len(ai.get_offer_evidence()["offers"]) == 5

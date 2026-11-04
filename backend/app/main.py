@@ -399,3 +399,10 @@ def monitoring():
                    "score_mean_holdout": float(hold["churn_probability"].mean()),
                    "model_version": "1.0.0",
                    "holdout": store.report["holdout"]["Calibrated Stack"]})
+
+
+# ── AI copilot ────────────────────────────────────────────────────────────────
+
+from backend.app.ai import router as ai_router  # noqa: E402
+
+app.include_router(ai_router)
