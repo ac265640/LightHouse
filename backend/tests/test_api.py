@@ -100,3 +100,11 @@ def test_ai_tools_return_grounded_data():
     assert ai.get_customer(cid)["customer_id"] == cid
     assert "uplift_optimised" in ai.plan_campaign(10000)["strategies"]
     assert len(ai.get_offer_evidence()["offers"]) == 5
+
+
+def test_customer_map_points(client):
+    m = client.get("/api/map").json()
+    assert len(m["points"]) == 7043
+    cid, lat, lng, risk, clv, pri, churned = m["points"][0]
+    assert 32 < lat < 42.5 and -124.5 < lng < -114
+    assert 0 <= risk <= 1 and pri in range(4) and churned in (0, 1)

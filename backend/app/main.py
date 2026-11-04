@@ -63,6 +63,22 @@ def health():
     return {"status": "ok", "customers": len(store.customers)}
 
 
+@app.get("/api/map")
+def customer_map():
+    """Every customer as a compact point for the coastline view:
+    [id, lat, lng, churn probability, CLV if retained, priority code, churned]."""
+    c = store.customers
+    codes = {"Save now": 0, "Low-cost save": 1, "Grow": 2, "Maintain": 3}
+    pts = [
+        [r.customer_id, round(r.latitude, 4), round(r.longitude, 4), round(float(r.churn_probability), 3),
+         round(float(r.clv), 0), codes.get(r.priority, 3), int(r.churn)]
+        for r in c[["customer_id", "latitude", "longitude", "churn_probability", "clv", "priority", "churn"]]
+        .itertuples(index=False)
+    ]
+    return {"fields": ["id", "lat", "lng", "risk", "clv", "priority", "churned"],
+            "priorities": list(codes), "points": pts}
+
+
 @app.get("/api/summary")
 def summary():
     df = store.customers
