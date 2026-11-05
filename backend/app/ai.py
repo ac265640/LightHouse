@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
@@ -178,6 +178,47 @@ def _run(prompt: str, history: list[dict] | None = None, tools: bool = True) -> 
     return {"answer": resp.text or "", "tool_calls": calls, "model": _model()}
 
 
+# ── Usage guard ────────────────────────────────────────────────────────────────
+# A public demo must never run up a bill: every Gemini call passes this budget,
+# kept well inside Gemini's free-tier quotas. Limits reset on their own windows.
+
+import threading
+import time
+from collections import defaultdict, deque
+
+LIMITS = {
+    "per_visitor_hour": int(os.getenv("AI_LIMIT_PER_VISITOR_HOUR", "12")),
+    "global_minute": int(os.getenv("AI_LIMIT_PER_MINUTE", "6")),
+    "global_day": int(os.getenv("AI_LIMIT_PER_DAY", "150")),
+}
+_hits: dict[str, deque] = defaultdict(deque)
+_lock = threading.Lock()
+
+
+def _visitor(request: Request) -> str:
+    fwd = request.headers.get("x-forwarded-for", "")
+    return fwd.split(",")[0].strip() or (request.client.host if request.client else "unknown")
+
+
+def _guard(request: Request) -> None:
+    now = time.time()
+    keys = [(f"v:{_visitor(request)}", 3600, LIMITS["per_visitor_hour"],
+             "You've reached this demo's hourly limit for AI answers. Please try again later."),
+            ("g:minute", 60, LIMITS["global_minute"],
+             "The copilot is busy right now. Please try again in a minute."),
+            ("g:day", 86400, LIMITS["global_day"],
+             "Today's AI budget for this demo is used up. Every analytics page still works.")]
+    with _lock:
+        for key, window, cap, msg in keys:
+            q = _hits[key]
+            while q and now - q[0] > window:
+                q.popleft()
+            if len(q) >= cap:
+                raise HTTPException(429, msg)
+        for key, *_ in keys:
+            _hits[key].append(now)
+
+
 # ── Endpoints ──────────────────────────────────────────────────────────────────
 
 class ChatRequest(BaseModel):
@@ -187,12 +228,14 @@ class ChatRequest(BaseModel):
 
 @router.get("/status")
 def status():
-    return {"configured": bool(os.getenv("GEMINI_API_KEY")), "model": _model()}
+    return {"configured": bool(os.getenv("GEMINI_API_KEY")), "model": _model(), "limits": LIMITS}
 
 
 @router.post("/chat")
-def chat(req: ChatRequest):
-    return _run(req.message, req.history[-10:])
+def chat(req: ChatRequest, request: Request):
+    _client()
+    _guard(request)
+    return _run(req.message[:2000], req.history[-10:])
 
 
 class MessageRequest(BaseModel):
@@ -201,8 +244,10 @@ class MessageRequest(BaseModel):
 
 
 @router.post("/message")
-def retention_message(req: MessageRequest):
+def retention_message(req: MessageRequest, request: Request):
+    _client()
     profile = get_customer(req.customer_id)
+    _guard(request)
     prompt = (
         f"Write a short, warm, personalised retention {req.channel} to this customer from their account "
         "manager. Address the specific drivers of their risk without mentioning churn, risk scores or models. "
@@ -218,7 +263,9 @@ def retention_message(req: MessageRequest):
 
 
 @router.post("/brief")
-def executive_brief():
+def executive_brief(request: Request):
+    _client()
+    _guard(request)
     prompt = ("Write a one-page executive retention brief for the leadership team. Use the tools to get the "
               "portfolio summary, the campaign plan for a $15,000 budget, the offer evidence and model quality. "
               "Structure: Headline (one sentence), Situation (3 bullets with numbers), Where the money is "

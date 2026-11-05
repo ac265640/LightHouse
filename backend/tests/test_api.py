@@ -108,3 +108,18 @@ def test_customer_map_points(client):
     cid, lat, lng, risk, clv, pri, churned = m["points"][0]
     assert 32 < lat < 42.5 and -124.5 < lng < -114
     assert 0 <= risk <= 1 and pri in range(4) and churned in (0, 1)
+
+
+def test_ai_guard_caps_requests_per_visitor(monkeypatch):
+    from fastapi import HTTPException
+    from starlette.requests import Request
+    from backend.app import ai
+    monkeypatch.setitem(ai.LIMITS, "per_visitor_hour", 2)
+    ai._hits.clear()
+    req = Request({"type": "http", "headers": [(b"x-forwarded-for", b"9.9.9.9")], "client": ("1.1.1.1", 1)})
+    ai._guard(req)
+    ai._guard(req)
+    with pytest.raises(HTTPException) as e:
+        ai._guard(req)
+    assert e.value.status_code == 429
+    ai._hits.clear()
