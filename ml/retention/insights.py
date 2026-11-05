@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-import shap
 from lightgbm import LGBMClassifier
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import cross_val_predict, StratifiedKFold
@@ -78,13 +77,11 @@ def friendly(name: str) -> str:
 # ── SHAP ───────────────────────────────────────────────────────────────────────
 
 def shap_values(model, X: pd.DataFrame) -> np.ndarray:
-    explainer = shap.TreeExplainer(model)
-    sv = explainer.shap_values(X)
-    if isinstance(sv, list):
-        sv = sv[1]
-    if sv.ndim == 3:
-        sv = sv[:, :, 1]
-    return sv
+    """Exact TreeSHAP values (log-odds) for a LightGBM model.
+
+    LightGBM computes these natively (`pred_contrib`), identical to shap.TreeExplainer,
+    so the API does not need to load the shap library at runtime."""
+    return model.predict(X, pred_contrib=True)[:, :-1]
 
 
 def top_reasons(sv: np.ndarray, X: pd.DataFrame, k: int = 5) -> list[list[dict]]:

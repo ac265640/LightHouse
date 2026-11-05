@@ -8,7 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
-import { API_URL } from "@/lib/api";
+import { API_URL, SNAPSHOT } from "@/lib/api";
 import { Logo } from "./Logo";
 
 const GROUPS = [
@@ -42,7 +42,9 @@ function ApiStatus() {
   return (
     <div className="flex items-center gap-2 text-[13px] text-faint">
       <span className={clsx("h-1.5 w-1.5 rounded-full", ok == null ? "bg-faint" : ok ? "bg-good" : "bg-bad")} />
-      {ok == null ? "Connecting" : ok ? "Model v1.0 live" : "API offline"}
+      {SNAPSHOT
+        ? ok == null ? "Waking the live model" : ok ? "Live model ready" : "Live model asleep"
+        : ok == null ? "Connecting" : ok ? "Model v1.0 live" : "API offline"}
     </div>
   );
 }

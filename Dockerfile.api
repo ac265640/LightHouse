@@ -1,0 +1,32 @@
+# Lighthouse API only, sized for a 512 MB free instance (Render).
+# The web app is deployed separately (Vercel) and calls this API for the live features.
+FROM python:3.11-slim-bookworm
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl libgomp1 ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m -u 1000 app
+WORKDIR /app
+
+COPY requirements-api.txt ./
+RUN pip install --no-cache-dir -r requirements-api.txt
+
+COPY ml/ ml/
+COPY backend/ backend/
+COPY scripts/ scripts/
+
+# Validated model artifacts are published as a GitHub release asset (they are too large for git).
+ARG ARTIFACTS_URL=https://github.com/ac265640/LightHouse/releases/download/models-v1
+COPY artifacts/ artifacts/
+RUN for f in model.joblib customers_scored.parquet; do \
+      [ -f "artifacts/$f" ] || curl -fsSL -o "artifacts/$f" "$ARTIFACTS_URL/$f"; \
+    done \
+ && mkdir -p data && bash scripts/download_data.sh \
+ && chown -R app:app /app
+
+USER app
+# Fewer malloc arenas keep resident memory down on a small instance.
+ENV PYTHONUNBUFFERED=1 MALLOC_ARENA_MAX=2 PORT=8000
+EXPOSE 8000
+CMD ["sh", "-c", "python -m uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT} --workers 1"]

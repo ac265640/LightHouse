@@ -13,7 +13,7 @@ import ScrollReveal from "./bits/ScrollReveal";
 import SplitText from "./bits/SplitText";
 import { Coastline, type MapData } from "./Coastline";
 import { Decrypt, Figure, Reveal, fmt, reducedMotion } from "./motion";
-import { api, type CustomerRow, type Summary } from "@/lib/api";
+import { API_URL, api, type CustomerRow, type Summary } from "@/lib/api";
 import { money, num, pct } from "@/lib/format";
 import { useApi } from "@/lib/useApi";
 
@@ -461,6 +461,8 @@ export function Close() {
 }
 
 export function useLandingData() {
+  // The live API sleeps when idle on the free tier; nudge it awake while the visitor reads.
+  useEffect(() => { fetch(`${API_URL}/api/health`).catch(() => {}); }, []);
   const { data: map } = useApi<MapData>("/api/map");
   const { data: summary } = useApi<Summary>("/api/summary");
   const { data: model } = useApi<{ uplift: { offers: Offer[] } }>("/api/model");

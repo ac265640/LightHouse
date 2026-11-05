@@ -1,0 +1,24 @@
+# Core data
+pandas==2.3.3
+numpy==2.4.6
+pyarrow==26.0.1
+scipy==1.17.1
+joblib==1.6.0
+
+# Modelling
+scikit-learn==1.9.1
+xgboost==3.2.0
+lightgbm==4.7.0
+catboost==1.2.10
+lifelines==0.30.3
+
+# API
+fastapi==0.162.0
+uvicorn[standard]==0.54.0
+pydantic==2.14.2
+python-multipart==0.0.33
+
+# Generative AI
+google-genai==2.34.0
+python-dotenv==1.2.4
+
