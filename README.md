@@ -9,7 +9,7 @@
 <p>
 <a href="https://lighthouse-retention.vercel.app"><img src="https://img.shields.io/badge/Open_the_live_app-F5B547?style=for-the-badge&logoColor=1a1206" alt="Open the live app"></a>
 <a href="https://lighthouse-retention.vercel.app/watch"><img src="https://img.shields.io/badge/Watch_the_videos-151A24?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch the videos"></a>
-<a href="https://deepwiki.com/ac265640/LightHouse"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki" height="28"></a>
+<a href="https://deepwiki.com/ac265640/LightHouse"><img src="https://img.shields.io/badge/Ask_DeepWiki-1F6FEB?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Ask DeepWiki"></a>
 </p>
 
 <p>
@@ -357,11 +357,11 @@ Built by **Team Tiramisu Tensor** for the **DataNova 2026 Global Data-thon** (Sw
 Have a question about the code? Ask an AI that has read the whole repository:
 
 <p>
-<a href="https://deepwiki.com/ac265640/LightHouse"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki" height="28"></a>
+<a href="https://deepwiki.com/ac265640/LightHouse"><img src="https://img.shields.io/badge/Ask_DeepWiki-1F6FEB?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Ask DeepWiki"></a>
 &nbsp;
-<a href="https://github.com/copilot"><img src="https://img.shields.io/badge/Ask_GitHub_Copilot-24292F?style=for-the-badge&logo=githubcopilot&logoColor=white" alt="Ask GitHub Copilot" height="28"></a>
+<a href="https://github.com/copilot"><img src="https://img.shields.io/badge/Ask_GitHub_Copilot-24292F?style=for-the-badge&logo=githubcopilot&logoColor=white" alt="Ask GitHub Copilot"></a>
 &nbsp;
-<a href="https://lighthouse-retention.vercel.app/copilot"><img src="https://img.shields.io/badge/Ask_the_Lighthouse_copilot-F5B547?style=for-the-badge" alt="Ask the Lighthouse copilot" height="28"></a>
+<a href="https://lighthouse-retention.vercel.app/copilot"><img src="https://img.shields.io/badge/Ask_the_Lighthouse_copilot-F5B547?style=for-the-badge" alt="Ask the Lighthouse copilot"></a>
 </p>
 
 - **DeepWiki** explains the code, its architecture and how the pieces connect.
