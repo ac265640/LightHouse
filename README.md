@@ -206,6 +206,6 @@ Python · scikit-learn · XGBoost · LightGBM · CatBoost · lifelines · FastAP
 
 <div align="center">
 
-Built by **Amit Singh Chauhan** for DataNova 2026
+Built by **Team Tiramisu Tensor** for DataNova 2026
 
 </div>
