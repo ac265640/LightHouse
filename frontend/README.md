@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lighthouse web app
 
-## Getting Started
+The analyst workspace and landing page for Lighthouse, built with Next.js 15, React 19, TypeScript and Tailwind CSS 4.
 
-First, run the development server:
+## Run locally
+
+Start the API first (see the [main README](../README.md#getting-started)), then:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Default | Purpose |
+|---|---|---|
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | Address of the Lighthouse API |
+| `NEXT_PUBLIC_SNAPSHOT` | unset | Set to `1` to read data from `public/snapshot/` (hosted mode) |
 
-## Learn More
+## Structure
 
-To learn more about Next.js, take a look at the following resources:
+```text
+src/
+├── app/
+│   ├── (site)/page.tsx        Landing page
+│   ├── (app)/layout.tsx       Workspace shell (sidebar and navigation)
+│   ├── (app)/overview/        Portfolio overview with the customer map
+│   ├── (app)/customers/       Customer list and customer profile
+│   ├── (app)/campaign/        Budget optimiser, offer evidence and A/B sizing
+│   ├── (app)/playbook/        Retention plays
+│   ├── (app)/copilot/         Gemini copilot
+│   ├── (app)/model/           Validation, calibration, survival and fairness
+│   ├── (app)/monitoring/      Drift and batch scoring
+│   └── globals.css            Design tokens
+├── components/
+│   ├── Shell.tsx              Sidebar, navigation and live-model status
+│   ├── ui.tsx                 Cards, stats, badges, segmented controls
+│   ├── motion.tsx             Smooth scroll, reveals, rolling figures
+│   ├── Coastline.tsx          Canvas map of every customer with the sweeping lamp
+│   ├── landing.tsx            Landing page sections
+│   └── bits/                  Animated components adapted from React Bits
+└── lib/
+    ├── api.ts                 API client, with the static-snapshot mode for hosting
+    ├── useApi.ts              Data-fetching hook
+    └── format.ts              Number, money and colour helpers
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The visual system (colours, type and motion) is described in [docs/design.md](../docs/design.md).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Checks
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint
+npx tsc --noEmit
+npm run build
+```

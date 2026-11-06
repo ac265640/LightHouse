@@ -31,11 +31,7 @@ frontend/.env*.local
 # Training scratch output
 catboost_info/
 
-# Local tooling
-.claude/
-
-# Frontend build output and design inspector screenshots
+# Frontend build output and generated data snapshot
 frontend/.next-build/
-.taste-skill/inspect/
 frontend/public/snapshot/
 frontend/.vercel/

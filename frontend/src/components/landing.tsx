@@ -209,7 +209,7 @@ export function Questions({ s }: { s?: Summary | null }) {
                 <div key={r.k} className="grid grid-cols-[150px_1fr_110px] items-center gap-4 md:grid-cols-[190px_1fr_120px]">
                   <span className={clsx("text-[14px]", r.main ? "text-text" : "text-muted")}>{r.k}</span>
                   <div className="relative h-7">
-                    <div className="absolute inset-y-0 left-1/2 w-px bg-line-2" /> {/* taste-skill-ignore: chart zero axis */}
+                    <div className="absolute inset-y-0 left-1/2 w-px bg-line-2" />
                     <div className="absolute inset-y-0 transition-[left,width] duration-700 ease-[cubic-bezier(.16,1,.3,1)]"
                       style={{
                         left: r.v >= 0 ? "50%" : `${50 - (Math.abs(r.v) / span) * 50}%`,
@@ -316,7 +316,7 @@ export function Reversal({ offers }: { offers: Offer[] }) {
           </h2>
           <p className="mt-6 max-w-[44ch] text-[17px] leading-relaxed text-muted">
             A plain comparison says Offer A cuts churn by 20 points. But Offer A only ever went to customers past 66 months, who rarely
-            leave anyway. Compared fairly, inside each tenure window with a doubly-robust estimator, the effect disappears. {/* taste-skill-ignore: statistical term */}
+            leave anyway. Compared fairly, inside each tenure window with a doubly-robust estimator, the effect disappears.
             No offer works on average. The value is in choosing who receives it.
           </p>
           <div className="mt-8 inline-flex bg-panel p-1" role="tablist" aria-label="Estimate">
@@ -341,8 +341,8 @@ export function Reversal({ offers }: { offers: Offer[] }) {
                     <div className="text-[13px] text-faint">{o.window}</div>
                   </div>
                   <div className="relative h-9 bg-panel">
-                    <div className="absolute inset-y-0 left-1/2 w-px bg-line-2" /> {/* taste-skill-ignore: chart zero axis */}
-                    {causal && <div className="absolute top-1/2 h-px -translate-y-1/2 bg-text/60 transition-[left,width] duration-700" /* taste-skill-ignore: confidence interval */ style={{ left: x(lo), width: `calc(${x(hi)} - ${x(lo)})` }} />}
+                    <div className="absolute inset-y-0 left-1/2 w-px bg-line-2" />
+                    {causal && <div className="absolute top-1/2 h-px -translate-y-1/2 bg-text/60 transition-[left,width] duration-700" style={{ left: x(lo), width: `calc(${x(hi)} - ${x(lo)})` }} />}
                     <div className="absolute inset-y-1.5 transition-[left,width,opacity] duration-[900ms] ease-[cubic-bezier(.16,1,.3,1)]"
                       style={{ left: v < 0 ? x(v) : "50%", width: `${(Math.min(max, Math.abs(v)) / max) * 50}%`, background: v < 0 ? "var(--lamp)" : "var(--bad)", opacity: causal ? 0.95 : 0.55 }} />
                   </div>
@@ -365,7 +365,7 @@ export function Reversal({ offers }: { offers: Offer[] }) {
 /* ── Methods, as one sentence with one lit name ───────────────────────────── */
 
 const METHODS = ["a leakage audit", "five model families", "a calibrated stack", "conformal prediction", "Cox survival with left truncation",
-  "survival lifetime value", "doubly-robust uplift", /* taste-skill-ignore: statistical term */ "SHAP drivers", "a budget optimiser", "a fairness audit", "drift monitoring", "a Gemini copilot that cites its tools"];
+  "survival lifetime value", "doubly-robust uplift", "SHAP drivers", "a budget optimiser", "a fairness audit", "drift monitoring", "a Gemini copilot that cites its tools"];
 
 export function Methods() {
   const [i, setI] = useState(0);

@@ -1,7 +1,5 @@
 .git
 .venv
-.claude
-.taste-skill
 **/__pycache__
 **/.pytest_cache
 data
