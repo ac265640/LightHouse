@@ -9,6 +9,7 @@
 <p>
 <a href="https://lighthouse-retention.vercel.app"><img src="https://img.shields.io/badge/Open_the_live_app-F5B547?style=for-the-badge&logoColor=1a1206" alt="Open the live app"></a>
 <a href="https://lighthouse-retention.vercel.app/watch"><img src="https://img.shields.io/badge/Watch_the_videos-151A24?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch the videos"></a>
+<a href="https://lighthouse-retention.vercel.app/deck"><img src="https://img.shields.io/badge/Read_the_pitch_deck-151A24?style=for-the-badge&logo=microsoftpowerpoint&logoColor=white" alt="Read the pitch deck"></a>
 <a href="https://deepwiki.com/ac265640/LightHouse"><img src="https://img.shields.io/badge/Ask_DeepWiki-1F6FEB?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Ask DeepWiki"></a>
 </p>
 
@@ -22,7 +23,7 @@
 <img src="https://img.shields.io/badge/hosting-%240%2Fmonth-4FC48A" alt="Hosting costs nothing">
 </p>
 
-**[Live app](https://lighthouse-retention.vercel.app)** · **[Videos](https://lighthouse-retention.vercel.app/watch)** · **[API docs](https://lighthouse-api-9f2b.onrender.com/docs)** · **[Methodology](docs/methodology.md)** · **[Pitch deck](presentation/lighthouse-deck.html)**
+**[Live app](https://lighthouse-retention.vercel.app)** · **[Videos](https://lighthouse-retention.vercel.app/watch)** · **[API docs](https://lighthouse-api-9f2b.onrender.com/docs)** · **[Methodology](docs/methodology.md)** · **[Pitch deck](https://lighthouse-retention.vercel.app/deck)**
 
 *Team Tiramisu Tensor · DataNova 2026 Global Data-thon · DN-BU-01: Customer Churn Prediction and Retention Strategy*
 
@@ -236,7 +237,7 @@ lighthouse/
 ├── scripts/               data download and the static snapshot export
 ├── deploy/                Dockerfiles, Render blueprint, Vercel deploy script
 ├── docs/                  methodology, API, deployment and design notes
-├── presentation/          pitch deck (open the HTML file in a browser)
+├── presentation/          pitch deck: PowerPoint, PDF and an animated HTML version
 └── artifacts/report.json  validation report behind every number in this README
 ```
 
@@ -318,7 +319,7 @@ All 18 endpoints are documented in [docs/api.md](docs/api.md) and on the [live O
 | [API reference](docs/api.md) | All endpoints, parameters, examples and usage limits |
 | [Deployment](docs/deployment.md) | How the free Vercel and Render setup works, and how to redeploy |
 | [Design](docs/design.md) | The colour, type and motion system |
-| [Pitch deck](presentation/lighthouse-deck.html) | The 14-slide pitch with speaker notes |
+| [Pitch deck](https://lighthouse-retention.vercel.app/deck) | The 15-slide pitch deck ([PowerPoint](presentation/Lighthouse-Team-Tiramisu-Tensor.pptx), [PDF](presentation/Lighthouse-Team-Tiramisu-Tensor.pdf)) with speaker notes |
 
 ## Limitations
 
