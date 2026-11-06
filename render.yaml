@@ -1,0 +1,12 @@
+# Render blueprint for the Lighthouse API (free instance: 512 MB, sleeps when idle).
+# The web app is hosted separately on Vercel; see deploy/deploy_web.sh.
+services:
+  - type: web
+    name: lighthouse-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.api
+    healthCheckPath: /api/health
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false   # set in the Render dashboard; never committed
