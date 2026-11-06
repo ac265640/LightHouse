@@ -35,3 +35,4 @@ catboost_info/
 frontend/.next-build/
 frontend/public/snapshot/
 frontend/.vercel/
+frontend/public/videos/

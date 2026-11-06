@@ -57,6 +57,7 @@ export function Hero({ map, summary }: { map?: MapData | null; summary?: Summary
         <div className="flex items-center gap-6 text-[15px]">
           <a href="#how" className="hidden text-muted transition-colors hover:text-text sm:inline">How it works</a>
           <a href="#evidence" className="hidden text-muted transition-colors hover:text-text sm:inline">Evidence</a>
+          <Link href="/watch" className="text-muted transition-colors hover:text-text">Watch</Link>
           <a href="https://github.com/ac265640/LightHouse" className="hidden text-muted transition-colors hover:text-text sm:inline">GitHub</a>
           <Link href="/overview" className="text-text underline decoration-lamp decoration-2 underline-offset-[6px] transition-colors hover:text-lamp">Open workspace</Link>
         </div>
