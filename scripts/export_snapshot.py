@@ -43,7 +43,7 @@ def main() -> None:
     for name, path in [("summary", "/api/summary"), ("map", "/api/map"), ("model", "/api/model"),
                        ("playbook", "/api/playbook"), ("monitoring", "/api/monitoring"),
                        ("simulate-options", "/api/simulate/options"),
-                       ("budget-curve", "/api/campaign/budget-curve")]:
+                       ("budget-curve", "/api/campaign/budget-curve?points=10&max_budget=60000")]:
         r = c.get(path)
         r.raise_for_status()
         size += write(f"{name}.json", r.json())

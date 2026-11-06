@@ -167,7 +167,7 @@ export default function CampaignPage() {
               <ResponsiveContainer>
                 <LineChart data={curve} margin={{ left: 0, right: 10, top: 6 }}>
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                  <XAxis dataKey="budget" tickFormatter={(v) => `$${v / 1000}k`} tickLine={false} axisLine={false} />
+                  <XAxis dataKey="budget" tickFormatter={(v) => `$${Math.round(v / 1000)}k`} tickLine={false} axisLine={false} />
                   <YAxis tickFormatter={(v) => money(v)} tickLine={false} axisLine={false} width={60} />
                   <ReferenceLine y={0} stroke="#262d3d" />
                   <ReferenceLine x={budget} stroke="#f5b547" strokeDasharray="4 4" />

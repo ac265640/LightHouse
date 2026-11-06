@@ -1,4 +1,5 @@
 # Lighthouse: API (FastAPI) and web app (Next.js) in one container.
+# Build from the repository root: docker build -f deploy/Dockerfile -t lighthouse .
 # The image ships the validated model artifacts (the exact scores in the report and
 # pitch) and downloads the dataset the API reads. With no artifacts present it
 # retrains every model from source instead.
@@ -41,7 +42,7 @@ RUN mkdir -p data \
 
 COPY --from=web /web/.next/standalone ./web
 COPY --from=web /web/.next/static ./web/.next/static
-COPY docker/start.sh ./start.sh
+COPY deploy/start.sh ./start.sh
 RUN chmod +x start.sh && chown -R app:app /app
 
 USER app

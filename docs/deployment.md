@@ -33,13 +33,14 @@ flowchart LR
 
 1. Sign in at [render.com](https://render.com) with GitHub. No card is needed.
 2. Choose **New → Web Service** and select this repository.
-3. Use these settings (they match [`render.yaml`](../render.yaml)):
+3. Use these settings (they match [`deploy/render.yaml`](../deploy/render.yaml)):
 
    | Setting | Value |
    |---|---|
    | Language | Docker |
    | Branch | `main` |
-   | Dockerfile path | `./Dockerfile.api` |
+   | Dockerfile path | `./deploy/Dockerfile.api` |
+   | Docker build context | `.` (the repository root) |
    | Instance type | Free |
    | Health check path | `/api/health` |
    | Environment variable | `GEMINI_API_KEY` = your key (optional) |
@@ -76,14 +77,14 @@ python -m ml.retention.pipeline
 gh release create models-v2 artifacts/model.joblib artifacts/customers_scored.parquet
 ```
 
-Then update `ARTIFACTS_URL` in `Dockerfile.api`. `artifacts/report.json` stays in git because every documented number comes from it.
+Then update `ARTIFACTS_URL` in `deploy/Dockerfile.api`. `artifacts/report.json` stays in git because every documented number comes from it.
 
 ## Single container
 
-`Dockerfile` runs the API and the web app together on port 7860, with Next.js forwarding `/api/*` to the API. It suits any host with about 1 GB of memory:
+`deploy/Dockerfile` runs the API and the web app together on port 7860, with Next.js forwarding `/api/*` to the API. It suits any host with about 1 GB of memory:
 
 ```bash
-docker build -t lighthouse .
+docker build -f deploy/Dockerfile -t lighthouse .
 docker run -p 7860:7860 -e GEMINI_API_KEY=your-key lighthouse
 ```
 

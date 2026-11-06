@@ -1,5 +1,6 @@
 # Lighthouse API only, sized for a 512 MB free instance (Render).
 # The web app is deployed separately (Vercel) and calls this API for the live features.
+# Build from the repository root: docker build -f deploy/Dockerfile.api -t lighthouse-api .
 FROM python:3.11-slim-bookworm
 
 RUN apt-get update \
@@ -9,8 +10,8 @@ RUN apt-get update \
 RUN useradd -m -u 1000 app
 WORKDIR /app
 
-COPY requirements-api.txt ./
-RUN pip install --no-cache-dir -r requirements-api.txt
+COPY backend/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ml/ ml/
 COPY backend/ backend/

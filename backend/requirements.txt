@@ -1,3 +1,4 @@
+# Runtime dependencies for the API container (training and tests use ../requirements.txt).
 # Core data
 pandas==2.3.3
 numpy==2.4.6

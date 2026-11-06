@@ -1,0 +1,14 @@
+.git
+.venv
+**/__pycache__
+**/.pytest_cache
+data
+catboost_info
+presentation
+frontend/node_modules
+frontend/.next
+frontend/.next-build
+backend/.env
+**/.env
+**/*.env
+.DS_Store
